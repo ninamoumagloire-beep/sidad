@@ -333,6 +333,7 @@ def stats():
 
         c.execute('SELECT AVG(score) as moyenne FROM analyses')
         row = c.fetchone()
+        # Mean authenticity score (kept under the 'precision' key for frontend compatibility)
         precision = round(row['moyenne'] or 0, 1)
 
         c.execute('SELECT * FROM analyses ORDER BY id DESC LIMIT 5')
