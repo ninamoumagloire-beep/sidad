@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIDAD — Paramètres</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --rouge:   #CE1126;
+            --jaune:   #FCD116;
+            --vert:    #009460;
+            --bg:      #07080D;
+            --card:    #0E1018;
+            --surface: #141720;
+            --border:  rgba(255,255,255,0.07);
+            --texte:   #F0F2F8;
+            --muted:   #4A5068;
+            --gris:    #7B8099;
+        }
+
+        body.theme-blanc      { --bg:#F0F2F8; --card:#FFFFFF; --surface:#E8EAF0; --border:rgba(0,0,0,0.08); --texte:#1A1D2E; --muted:#8890A8; --gris:#6B7490; }
+        body.theme-bleu       { --bg:#0A1628; --card:#0F1E3A; --surface:#162440; --border:rgba(255,255,255,0.08); --texte:#E0E8FF; --muted:#3A5080; --gris:#5A78A8; }
+        body.theme-bleu-clair { --bg:#1E3A5F; --card:#24456E; --surface:#2A5080; --border:rgba(255,255,255,0.1); --texte:#E8F0FF; --muted:#4A7AB0; --gris:#6A98C8; }
+        body.theme-vert-fonce { --bg:#0A1A0F; --card:#0F2414; --surface:#142E18; --border:rgba(0,148,96,0.15); --texte:#D0F0DC; --muted:#2A5A34; --gris:#4A8A58; }
+
+        body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--texte); height:100vh; display:flex; overflow:hidden; }
+
+        .sidebar { width:240px; background:var(--card); border-right:1px solid var(--border); display:flex; flex-direction:column; height:100vh; flex-shrink:0; }
+        .sidebar-logo { padding:28px 20px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+        .logo-icon { width:42px; height:42px; background:linear-gradient(135deg,#FCD116,#c9900a); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; box-shadow:0 0 20px rgba(252,209,22,0.3); flex-shrink:0; }
+        .logo-nom  { font-family:'Syne',sans-serif; font-size:18px; font-weight:800; }
+        .logo-pays { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; }
+        .sidebar-nav { flex:1; padding:20px 12px; display:flex; flex-direction:column; gap:2px; }
+        .nav-section { font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); padding:12px 10px 6px; }
+        .nav-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; cursor:pointer; transition:all 0.2s; color:var(--gris); font-size:13.5px; border:1px solid transparent; text-decoration:none; }
+        .nav-item:hover { background:var(--surface); color:var(--texte); }
+        .nav-item.actif { background:rgba(252,209,22,0.1); border-color:rgba(252,209,22,0.25); color:var(--jaune); }
+        .nav-icone { font-size:16px; width:20px; text-align:center; }
+        .sidebar-profil { padding:14px 12px 20px; border-top:1px solid var(--border); }
+        .profil-carte { display:flex; align-items:center; gap:10px; padding:10px; background:var(--surface); border-radius:8px; }
+        .profil-avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,#6366f1,#8b5cf6); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; flex-shrink:0; }
+        .profil-nom  { font-size:13px; font-weight:500; }
+        .profil-role { font-size:11px; color:var(--muted); }
+
+        .main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+        .topbar { background:var(--card); border-bottom:1px solid var(--border); padding:0 28px; height:64px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+        .topbar-titre { font-family:'Syne',sans-serif; font-size:17px; font-weight:800; }
+        .topbar-sous  { font-size:12px; color:var(--muted); margin-top:2px; }
+        .topbar-droite { display:flex; align-items:center; gap:10px; }
+        .lang-toggle { display:flex; background:var(--surface); border:1px solid var(--border); border-radius:7px; overflow:hidden; }
+        .lang-btn { padding:6px 16px; font-size:11px; font-weight:700; font-family:'DM Sans',sans-serif; letter-spacing:0.5px; cursor:pointer; border:none; background:none; color:var(--gris); transition:all 0.2s; }
+        .lang-btn.actif { background:var(--jaune); color:var(--bg); }
+
+        .contenu { flex:1; overflow-y:auto; padding:28px; display:flex; flex-direction:column; gap:18px; }
+        @keyframes apparait { from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);} }
+
+        /* LICENCE */
+        .licence-carte { background:linear-gradient(135deg,rgba(252,209,22,0.08),rgba(206,17,38,0.05)); border:1px solid rgba(252,209,22,0.3); border-radius:14px; padding:22px; display:flex; align-items:center; gap:18px; animation:apparait 0.4s ease both; }
+        .licence-icone { width:52px; height:52px; border-radius:12px; background:linear-gradient(135deg,#FCD116,#c9900a); display:flex; align-items:center; justify-content:center; font-size:24px; box-shadow:0 0 20px rgba(252,209,22,0.3); flex-shrink:0; }
+        .licence-titre { font-family:'Syne',sans-serif; font-size:15px; font-weight:800; color:var(--jaune); margin-bottom:4px; }
+        .licence-desc  { font-size:12px; color:var(--gris); }
+        .licence-meta  { display:flex; gap:18px; margin-top:10px; flex-wrap:wrap; }
+        .lm-item { display:flex; flex-direction:column; gap:2px; }
+        .lm-cle  { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; }
+        .lm-val  { font-size:12px; font-weight:600; }
+
+        /* SECTIONS */
+        .section { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:visible; animation:apparait 0.4s ease both; }
+        .section-header { padding:16px 22px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+        .section-ico { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; }
+        .section-titre { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; }
+        .section-sous  { font-size:11px; color:var(--muted); margin-top:2px; }
+
+        /* PARAMÈTRE LIGNE */
+        .param { display:flex; align-items:center; justify-content:space-between; padding:15px 22px; border-bottom:1px solid var(--border); gap:20px; }
+        .param:last-child { border-bottom:none; }
+        .param-left { flex:1; min-width:0; }
+        .param-nom  { font-size:13.5px; font-weight:500; color:var(--texte); }
+        .param-desc { font-size:11.5px; color:var(--muted); margin-top:3px; line-height:1.5; }
+        .param-right { flex-shrink:0; }
+
+        /* TOGGLE */
+        .toggle { position:relative; display:inline-block; width:46px; height:26px; }
+        .toggle input { display:none; }
+        .toggle-track { position:absolute; inset:0; background:var(--surface); border:1px solid var(--border); border-radius:13px; cursor:pointer; transition:all 0.3s; }
+        .toggle-track::after { content:''; position:absolute; top:4px; left:4px; width:16px; height:16px; border-radius:50%; background:var(--gris); transition:all 0.3s; }
+        .toggle input:checked ~ .toggle-track { background:#009460; border-color:#009460; }
+        .toggle input:checked ~ .toggle-track::after { left:24px; background:white; }
+
+        /* SELECT */
+        .param-select { padding:9px 14px; background:var(--surface); border:1px solid var(--border); border-radius:8px; color:var(--texte); font-size:13px; font-family:'DM Sans',sans-serif; outline:none; cursor:pointer; min-width:170px; }
+        .param-select:focus { border-color:rgba(252,209,22,0.4); }
+
+        /* INPUT */
+        .param-input { padding:9px 14px; background:var(--surface); border:1px solid var(--border); border-radius:8px; color:var(--texte); font-size:13px; font-family:'DM Sans',sans-serif; outline:none; min-width:220px; }
+        .param-input:focus { border-color:rgba(252,209,22,0.4); }
+
+        /* SEUILS */
+        .seuils-bloc { padding:20px 22px; border-bottom:1px solid var(--border); overflow:visible; }
+        .seuils-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; height:auto; }
+        .seuil-carte { border-radius:12px; padding:18px; text-align:center; height:auto; min-height:160px; }
+        .seuil-carte.vert  { background:rgba(0,148,96,0.08); border:2px solid rgba(0,148,96,0.35); }
+        .seuil-carte.rouge { background:rgba(206,17,38,0.08); border:2px solid rgba(206,17,38,0.35); }
+        .seuil-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:14px; }
+        .seuil-label.vert  { color:#00d484; }
+        .seuil-label.rouge { color:#ff4466; }
+        .seuil-controls { display:flex; align-items:center; justify-content:center; gap:14px; }
+        .seuil-btn { width:36px; height:36px; border-radius:8px; background:var(--surface); border:1px solid var(--border); color:var(--texte); font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; user-select:none; line-height:1; }
+        .seuil-btn:hover { border-color:var(--jaune); color:var(--jaune); }
+        .seuil-num { font-family:'Syne',sans-serif; font-size:46px; font-weight:800; line-height:1; min-width:95px; }
+        .seuil-num.vert  { color:#00d484; text-shadow:0 0 24px rgba(0,212,132,0.35); }
+        .seuil-num.rouge { color:#ff4466; text-shadow:0 0 24px rgba(255,68,102,0.35); }
+        .seuil-sous { font-size:11px; color:var(--muted); margin-top:10px; }
+        .seuil-barre { display:flex; border-radius:6px; overflow:hidden; height:7px; }
+        .seuil-legende { display:flex; justify-content:space-between; margin-top:5px; font-size:10px; color:var(--muted); }
+
+        /* THÈMES */
+        .themes-grid { display:flex; gap:10px; flex-wrap:wrap; }
+        .theme-rond { width:38px; height:38px; border-radius:50%; cursor:pointer; border:3px solid transparent; transition:all 0.2s; position:relative; }
+        .theme-rond:hover { transform:scale(1.1); }
+        .theme-rond.actif { border-color:var(--jaune) !important; box-shadow:0 0 10px rgba(252,209,22,0.5); }
+        .theme-rond.actif::after { content:'✓'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:14px; font-weight:800; color:white; text-shadow:0 1px 3px rgba(0,0,0,0.7); }
+
+        /* BOUTONS BAS */
+        .bas-actions { display:flex; gap:12px; animation:apparait 0.4s ease 0.25s both; }
+        .btn-save  { padding:13px 28px; background:linear-gradient(135deg,#FCD116,#c9900a); color:#07080D; border:none; border-radius:9px; font-size:14px; font-weight:700; font-family:'DM Sans',sans-serif; cursor:pointer; transition:all 0.2s; }
+        .btn-save:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(252,209,22,0.3); }
+        .btn-reset { padding:13px 22px; background:var(--surface); color:var(--gris); border:1px solid var(--border); border-radius:9px; font-size:14px; font-weight:600; font-family:'DM Sans',sans-serif; cursor:pointer; transition:all 0.2s; }
+        .btn-reset:hover { border-color:rgba(255,255,255,0.2); color:var(--texte); }
+
+        /* TOAST */
+        .toast { position:fixed; bottom:28px; right:28px; background:#009460; color:white; padding:12px 20px; border-radius:10px; font-size:13px; font-weight:600; box-shadow:0 4px 20px rgba(0,148,96,0.4); opacity:0; transform:translateY(10px); transition:all 0.3s; pointer-events:none; z-index:999; }
+        .toast.show { opacity:1; transform:translateY(0); }
+
+        ::-webkit-scrollbar { width:5px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:var(--border); border-radius:10px; }
+    
+        .btn-deconnexion {
+            width: 100%;
+            margin-top: 8px;
+            padding: 9px 12px;
+            background: rgba(206,17,38,0.08);
+            border: 1px solid rgba(206,17,38,0.2);
+            border-radius: 8px;
+            color: #f87171;
+            font-size: 12.5px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .btn-deconnexion:hover {
+            background: rgba(206,17,38,0.15);
+            border-color: rgba(206,17,38,0.4);
+        }
+        
+        /* ══ RESPONSIVE MOBILE ══ */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 12px;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                position: relative;
+                z-index: 100;
+            }
+            .sidebar-logo { padding: 12px 8px; border-bottom: none; }
+            .logo-pays { display: none; }
+            .sidebar-nav { display: none; }
+            .sidebar-profil { display: none; }
+
+            /* Menu hamburger */
+            .hamburger {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                cursor: pointer;
+                padding: 10px;
+            }
+            .hamburger span {
+                width: 22px; height: 2px;
+                background: var(--gris);
+                border-radius: 2px;
+                transition: all 0.3s;
+            }
+
+            /* Menu mobile overlay */
+            .menu-mobile {
+                display: none;
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.7);
+                z-index: 200;
+            }
+            .menu-mobile.ouvert { display: block; }
+            .menu-mobile-inner {
+                width: 260px;
+                height: 100%;
+                background: var(--card);
+                border-right: 1px solid var(--border);
+                padding: 20px 12px;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                overflow-y: auto;
+            }
+            .menu-mobile-close {
+                align-self: flex-end;
+                background: none; border: none;
+                color: var(--gris); font-size: 20px;
+                cursor: pointer; margin-bottom: 12px;
+            }
+
+            .main { flex: 1; overflow: auto; }
+            .topbar { padding: 0 16px; height: 56px; }
+            .topbar-titre { font-size: 15px; }
+            .topbar-date { display: none; }
+            .contenu { padding: 16px; gap: 16px; }
+
+            /* Grilles responsive */
+            .stats-grille { grid-template-columns: 1fr; }
+            .info-grille  { grid-template-columns: 1fr; }
+            .seuils-grid  { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            .topbar-droite { gap: 6px; }
+            .systeme-actif { padding: 5px 8px; font-size: 11px; }
+            .lang-btn { padding: 5px 12px; }
+        }
+
+        
+        /* ══ BOUTON HAMBURGER ══ */
+        .btn-hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 10px;
+            cursor: pointer;
+        }
+        .btn-hamburger span {
+            width: 20px; height: 2px;
+            background: var(--gris);
+            border-radius: 2px;
+            display: block;
+            transition: all 0.3s;
+        }
+        @media (max-width: 768px) {
+            .btn-hamburger { display: flex; }
+        }
+
+        /* ══ SIDEBAR MOBILE ══ */
+        .overlay-mobile {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 300;
+        }
+        .overlay-mobile.actif { display: block; }
+
+        .sidebar-mobile {
+            position: fixed;
+            top: 0; left: 0;
+            width: 260px; height: 100%;
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            z-index: 301;
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+            display: flex; flex-direction: column;
+            overflow-y: auto;
+        }
+        .sidebar-mobile.actif { transform: translateX(0); }
+
+        .sm-header {
+            display: flex; align-items: center;
+            justify-content: space-between;
+            padding: 20px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        </style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon">🛡️</div>
+        <div>
+            <div class="logo-nom">SIDAD</div>
+            <div class="logo-pays">République de Guinée</div>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section">Principal</div>
+        <a class="nav-item" href="dashboard.html"><span class="nav-icone">📊</span> Tableau de Bord</a>
+        <a class="nav-item" href="analyser.html"><span class="nav-icone">🔍</span> Analyser</a>
+        <a class="nav-item" href="historique.html"><span class="nav-icone">📋</span> Historique</a>
+        <div class="nav-section" style="margin-top:8px;">Administration</div>
+        <a class="nav-item" href="utilisateurs.html"><span class="nav-icone">👥</span> Utilisateurs</a>
+        <a class="nav-item actif" href="parametres.html"><span class="nav-icone">⚙️</span> Paramètres</a>
+    </nav>
+    <div class="sidebar-profil">
+        <div class="profil-carte">
+            <div class="profil-avatar">YN</div>
+            <div>
+                <div class="profil-nom">Yves Ninamou</div>
+                <div class="profil-role">Super Administrateur</div>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- MAIN -->
+<!-- ═══ MENU MOBILE ═══ -->
+<div class="overlay-mobile" id="overlay-mobile" onclick="fermerMenuMobile()"></div>
+<div class="sidebar-mobile" id="sidebar-mobile">
+    <div class="sm-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:36px;height:36px;background:linear-gradient(135deg,#FCD116,#c9900a);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;">🛡️</div>
+            <span style="font-family:Syne,sans-serif;font-weight:800;font-size:16px;">SIDAD</span>
+        </div>
+        <button onclick="fermerMenuMobile()" style="background:none;border:none;color:var(--gris);font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div id="sm-nav"></div>
+    <div id="sm-profil"></div>
+</div>
+<div class="main">
+    <header class="topbar">
+        <div>
+            <div class="topbar-titre" id="p-titre">Paramètres</div>
+            <div class="topbar-sous">Configuration du système SIDAD</div>
+        </div>
+        <div class="topbar-droite">
+            <!-- Bouton hamburger mobile -->
+            <button class="btn-hamburger" id="btn-hamburger" onclick="toggleMenuMobile()" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="lang-toggle">
+                <button class="lang-btn actif" id="btn-fr" onclick="setLangue('fr')">FR</button>
+                <button class="lang-btn"       id="btn-en" onclick="setLangue('en')">EN</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="contenu">
+
+        <!-- LICENCE -->
+        <div class="licence-carte">
+            <div class="licence-icone">👑</div>
+            <div style="flex:1;">
+                <div class="licence-titre" id="p-lic-titre">Licence Super Admin — SIDAD</div>
+                <div class="licence-desc" id="p-lic-desc">Propriétaire du système. Accès total et permanent à toutes les fonctionnalités.</div>
+                <div class="licence-meta">
+                    <div class="lm-item"><span class="lm-cle" id="p-lm1">Propriétaire</span><span class="lm-val">Yves Ninamou</span></div>
+                    <div class="lm-item"><span class="lm-cle" id="p-lm2">Licence</span><span class="lm-val">SIDAD-2025-GN-001</span></div>
+                    <div class="lm-item"><span class="lm-cle" id="p-lm3">Version</span><span class="lm-val">SIDAD v1.0</span></div>
+                    <div class="lm-item"><span class="lm-cle" id="p-lm4">Pays</span><span class="lm-val">🇬🇳 République de Guinée</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 1 : ANALYSE -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-ico" style="background:rgba(252,209,22,0.12)">🔍</div>
+                <div>
+                    <div class="section-titre" id="p-s1-titre">Paramètres d'Analyse</div>
+                    <div class="section-sous" id="p-s1-sous">Configurez le comportement du moteur de détection</div>
+                </div>
+            </div>
+
+            <div class="seuils-bloc">
+                <div class="seuils-grid">
+                    <div class="seuil-carte vert">
+                        <div class="seuil-label vert" id="p-seuil1">Seuil d'authenticité</div>
+                        <div class="seuil-controls">
+                            <button class="seuil-btn" id="auth-moins">−</button>
+                            <div class="seuil-num vert" id="val-auth">70%</div>
+                            <button class="seuil-btn" id="auth-plus">+</button>
+                        </div>
+                        <div class="seuil-sous">Score minimum — Authentique</div>
+                    </div>
+                    <div class="seuil-carte rouge">
+                        <div class="seuil-label rouge" id="p-seuil2">Seuil de falsification</div>
+                        <div class="seuil-controls">
+                            <button class="seuil-btn" id="fals-moins">−</button>
+                            <div class="seuil-num rouge" id="val-fals">40%</div>
+                            <button class="seuil-btn" id="fals-plus">+</button>
+                        </div>
+                        <div class="seuil-sous">Score maximum — Falsifié</div>
+                    </div>
+                </div>
+                <div class="seuil-barre">
+                    <div style="flex:2;background:#CE1126;opacity:0.7;"></div>
+                    <div style="flex:1.5;background:#FCD116;opacity:0.7;"></div>
+                    <div style="flex:1.5;background:#009460;opacity:0.7;"></div>
+                </div>
+                <div class="seuil-legende">
+                    <span>0% — Falsifié</span>
+                    <span>Entre les deux → Révision</span>
+                    <span>Authentique — 100%</span>
+                </div>
+            </div>
+
+            <div class="param">
+                <div class="param-left">
+                    <div class="param-nom" id="p-n1">Révision manuelle automatique</div>
+                    <div class="param-desc" id="p-d1">Envoyer automatiquement les documents entre les deux seuils en révision</div>
+                </div>
+                <div class="param-right">
+                    <label class="toggle"><input type="checkbox" id="tog-revision" checked><div class="toggle-track"></div></label>
+                </div>
+            </div>
+
+            <div class="param">
+                <div class="param-left">
+                    <div class="param-nom" id="p-n2">Formats de fichiers acceptés</div>
+                    <div class="param-desc" id="p-d2">Types de fichiers autorisés pour l'analyse</div>
+                </div>
+                <div class="param-right">
+                    <select class="param-select" id="sel-formats">
+                        <option value="tous">PDF, JPG, PNG, JPEG</option>
+                        <option value="pdf">PDF seulement</option>
+                        <option value="images">Images seulement</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 2 : SYSTÈME -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-ico" style="background:rgba(99,102,241,0.12)">🖥️</div>
+                <div>
+                    <div class="section-titre" id="p-s2-titre">Paramètres Système</div>
+                    <div class="section-sous">Options générales du système</div>
+                </div>
+            </div>
+
+            <div class="param">
+                <div class="param-left">
+                    <div class="param-nom" id="p-n3">Thème de couleur</div>
+                    <div class="param-desc" id="p-d3">Choisissez la couleur de fond du système</div>
+                </div>
+                <div class="param-right">
+                    <div class="themes-grid">
+                        <div class="theme-rond" id="th-noir"       style="background:#07080D;outline:1px solid rgba(255,255,255,0.2);" title="Noir"></div>
+                        <div class="theme-rond" id="th-blanc"      style="background:#F0F2F8;outline:1px solid rgba(0,0,0,0.15);"     title="Blanc"></div>
+                        <div class="theme-rond" id="th-bleu"       style="background:#0A1628;outline:1px solid rgba(255,255,255,0.2);" title="Bleu foncé"></div>
+                        <div class="theme-rond" id="th-bleu-clair" style="background:#1E3A5F;outline:1px solid rgba(255,255,255,0.2);" title="Bleu clair"></div>
+                        <div class="theme-rond" id="th-vert-fonce" style="background:#0A1A0F;outline:1px solid rgba(0,148,96,0.4);"   title="Vert foncé"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="param">
+                <div class="param-left">
+                    <div class="param-nom" id="p-n4">Langue par défaut</div>
+                    <div class="param-desc" id="p-d4">Langue affichée au démarrage du système</div>
+                </div>
+                <div class="param-right">
+                    <select class="param-select" id="sel-langue">
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="en">🇬🇧 English</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="param">
+                <div class="param-left">
+                    <div class="param-nom" id="p-n5">Nom de l'institution</div>
+                    <div class="param-desc" id="p-d5">Affiché dans les rapports générés</div>
+                </div>
+                <div class="param-right">
+                    <input type="text" class="param-input" id="inp-institution" value="Ministère du Numérique — Guinée">
+                </div>
+            </div>
+
+            <div class="param">
+                <div class="param-left">
+                    <div class="param-nom" id="p-n6">Notifications d'alerte</div>
+                    <div class="param-desc" id="p-d6">Afficher une alerte quand un document falsifié est détecté</div>
+                </div>
+                <div class="param-right">
+                    <label class="toggle"><input type="checkbox" id="tog-notif" checked><div class="toggle-track"></div></label>
+                </div>
+            </div>
+
+            <div class="param">
+                <div class="param-left">
+                    <div class="param-nom" id="p-n7">Sauvegarde automatique</div>
+                    <div class="param-desc" id="p-d7">Sauvegarder automatiquement l'historique des analyses</div>
+                </div>
+                <div class="param-right">
+                    <label class="toggle"><input type="checkbox" id="tog-sauvegarde" checked><div class="toggle-track"></div></label>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3 : SÉCURITÉ -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-ico" style="background:rgba(206,17,38,0.12)">🔐</div>
+                <div>
+                    <div class="section-titre" id="p-s3-titre">Sécurité</div>
+                    <div class="section-sous">Gérez la sécurité des accès</div>
+                </div>
+            </div>
+
+            <div class="param">
+                <div class="param-left">
+                    <div class="param-nom" id="p-n8">Durée de session</div>
+                    <div class="param-desc" id="p-d8">Déconnexion automatique après inactivité</div>
+                </div>
+                <div class="param-right">
+                    <select class="param-select" id="sel-session">
+                        <option value="30">30 minutes</option>
+                        <option value="60" selected>1 heure</option>
+                        <option value="120">2 heures</option>
+                        <option value="480">8 heures</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="param">
+                <div class="param-left">
+                    <div class="param-nom" id="p-n9">Double authentification</div>
+                    <div class="param-desc" id="p-d9">Exiger un code SMS à la connexion (disponible en version complète)</div>
+                </div>
+                <div class="param-right">
+                    <label class="toggle"><input type="checkbox" id="tog-2fa"><div class="toggle-track"></div></label>
+                </div>
+            </div>
+
+            <div class="param">
+                <div class="param-left">
+                    <div class="param-nom" id="p-n10">Journal d'activité</div>
+                    <div class="param-desc" id="p-d10">Enregistrer toutes les actions des utilisateurs</div>
+                </div>
+                <div class="param-right">
+                    <label class="toggle"><input type="checkbox" id="tog-journal" checked><div class="toggle-track"></div></label>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOUTONS -->
+        <div class="bas-actions">
+            <button class="btn-save"  onclick="sauvegarder()">💾 Sauvegarder les paramètres</button>
+            <button class="btn-reset" onclick="reinitialiser()">↺ Réinitialiser par défaut</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+      /* ══════════════════════════════════════
+       TRADUCTIONS FR / EN
+    ══════════════════════════════════════ */
+    var TEXTES = {
+        fr: {
+            'sb-pays':        'République de Guinée',
+            'nav-s1':         'Principal',
+            'nav-s2':         'Administration',
+            'nav-dashboard':  'Tableau de Bord',
+            'nav-analyser':   'Analyser',
+            'nav-historique': 'Historique',
+            'nav-utilisateurs': 'Utilisateurs',
+            'nav-parametres': 'Paramètres',
+            'profil-role':    'Administrateur',
+            'p-titre':        'Paramètres',
+            'p-lic-titre':    'Licence Super Admin — SIDAD',
+            'p-lic-desc':     'Propriétaire du système. Accès total et permanent à toutes les fonctionnalités.',
+            'p-lm1': 'Propriétaire', 'p-lm2': 'Licence', 'p-lm3': 'Version', 'p-lm4': 'Pays',
+            'p-s1-titre':  "Paramètres d'Analyse",
+            'p-s1-sous':   'Configurez le comportement du moteur de détection',
+            'p-seuil1':    "Seuil d'authenticité",
+            'p-seuil2':    'Seuil de falsification',
+            'p-n1':  'Révision manuelle automatique',  'p-n2':  'Formats de fichiers acceptés',
+            'p-n3':  'Thème de couleur',               'p-n4':  'Langue par défaut',
+            'p-n5':  "Nom de l'institution",           'p-n6':  "Notifications d'alerte",
+            'p-n7':  'Sauvegarde automatique',         'p-n8':  'Durée de session',
+            'p-n9':  'Double authentification',        'p-n10': "Journal d'activité",
+            'p-d1':  'Envoyer automatiquement les documents entre les deux seuils en révision',
+            'p-d2':  "Types de fichiers autorisés pour l'analyse",
+            'p-d3':  'Choisissez la couleur de fond du système',
+            'p-d4':  'Langue affichée au démarrage du système',
+            'p-d5':  'Affiché dans les rapports générés',
+            'p-d6':  "Afficher une alerte quand un document falsifié est détecté",
+            'p-d7':  "Sauvegarder automatiquement l'historique des analyses",
+            'p-d8':  'Déconnexion automatique après inactivité',
+            'p-d9':  'Exiger un code SMS à la connexion (disponible en version complète)',
+            'p-d10': 'Enregistrer toutes les actions des utilisateurs',
+            'p-s2-titre': 'Paramètres Système',  'p-s2-sous': 'Interface, langue et préférences générales',
+            'p-s3-titre': 'Sécurité',             'p-s3-sous': 'Accès et protection du système',
+            'lbl-deco': 'Se déconnecter',
+        },
+        en: {
+            'sb-pays':        'Republic of Guinea',
+            'nav-s1':         'Main',
+            'nav-s2':         'Administration',
+            'nav-dashboard':  'Dashboard',
+            'nav-analyser':   'Analyse',
+            'nav-historique': 'History',
+            'nav-utilisateurs': 'Users',
+            'nav-parametres': 'Settings',
+            'profil-role':    'Administrator',
+            'p-titre':        'Settings',
+            'p-lic-titre':    'Super Admin License — SIDAD',
+            'p-lic-desc':     'System owner. Full and permanent access to all features.',
+            'p-lm1': 'Owner', 'p-lm2': 'License', 'p-lm3': 'Version', 'p-lm4': 'Country',
+            'p-s1-titre':  'Analysis Settings',
+            'p-s1-sous':   'Configure the detection engine behavior',
+            'p-seuil1':    'Authenticity threshold',
+            'p-seuil2':    'Forgery threshold',
+            'p-n1':  'Automatic manual review',     'p-n2':  'Accepted file formats',
+            'p-n3':  'Color theme',                 'p-n4':  'Default language',
+            'p-n5':  'Institution name',            'p-n6':  'Alert notifications',
+            'p-n7':  'Automatic backup',            'p-n8':  'Session duration',
+            'p-n9':  'Two-factor authentication',   'p-n10': 'Activity log',
+            'p-d1':  'Automatically send documents between both thresholds for review',
+            'p-d2':  'File types allowed for analysis',
+            'p-d3':  'Choose the system background color',
+            'p-d4':  'Language displayed at system startup',
+            'p-d5':  'Displayed in generated reports',
+            'p-d6':  'Show an alert when a forged document is detected',
+            'p-d7':  'Automatically save the analysis history',
+            'p-d8':  'Automatic logout after inactivity',
+            'p-d9':  'Require an SMS code at login (available in full version)',
+            'p-d10': 'Record all user actions',
+            'p-s2-titre': 'System Settings',  'p-s2-sous': 'Interface, language and general preferences',
+            'p-s3-titre': 'Security',          'p-s3-sous': 'Access and system protection',
+            'lbl-deco': 'Sign out',
+        }
+    };
+
+      var seuilAuth = 70;
+    var seuilFals = 40;
+    var langue    = 'fr';
+    var themeActuel = localStorage.getItem('sidad_theme') || 'noir';
+
+    /* SEUILS */
+    document.getElementById('auth-moins').onclick = function() {
+        if (seuilAuth - 5 > seuilFals + 5) { seuilAuth -= 5; document.getElementById('val-auth').textContent = seuilAuth + '%'; }
+    };
+    document.getElementById('auth-plus').onclick = function() {
+        if (seuilAuth + 5 <= 95) { seuilAuth += 5; document.getElementById('val-auth').textContent = seuilAuth + '%'; }
+    };
+    document.getElementById('fals-moins').onclick = function() {
+        if (seuilFals - 5 >= 5) { seuilFals -= 5; document.getElementById('val-fals').textContent = seuilFals + '%'; }
+    };
+    document.getElementById('fals-plus').onclick = function() {
+        if (seuilFals + 5 < seuilAuth - 5) { seuilFals += 5; document.getElementById('val-fals').textContent = seuilFals + '%'; }
+    };
+
+    /* THÈMES */
+    function appliquerTheme(nom) {
+        themeActuel = nom;
+        document.body.classList.remove('theme-blanc','theme-bleu','theme-bleu-clair','theme-vert-fonce');
+        var classes = { 'blanc':'theme-blanc', 'bleu':'theme-bleu', 'bleu-clair':'theme-bleu-clair', 'vert-fonce':'theme-vert-fonce' };
+        if (classes[nom]) document.body.classList.add(classes[nom]);
+        document.querySelectorAll('.theme-rond').forEach(function(el) { el.classList.remove('actif'); });
+        var el = document.getElementById('th-' + nom);
+        if (el) el.classList.add('actif');
+        localStorage.setItem('sidad_theme', nom);
+    }
+    // Synchroniser select langue avec boutons FR/EN
+    document.getElementById('sel-langue').addEventListener('change', function() {
+        setLangue(this.value);
+    });
+
+    document.getElementById('th-noir').onclick       = function() { appliquerTheme('noir'); };
+    document.getElementById('th-blanc').onclick      = function() { appliquerTheme('blanc'); };
+    document.getElementById('th-bleu').onclick       = function() { appliquerTheme('bleu'); };
+    document.getElementById('th-bleu-clair').onclick = function() { appliquerTheme('bleu-clair'); };
+    document.getElementById('th-vert-fonce').onclick = function() { appliquerTheme('vert-fonce'); };
+
+    /* LANGUE */
+    function setLangue(lng) {
+        langue = lng;
+        localStorage.setItem('sidad_langue', lng);
+        document.getElementById('btn-fr').classList.toggle('actif', lng === 'fr');
+        document.getElementById('btn-en').classList.toggle('actif', lng === 'en');
+
+        // Mettre à jour aussi le select langue
+        document.getElementById('sel-langue').value = lng;
+
+        // Appliquer toutes les traductions
+        var t = TEXTES[lng];
+        for (var id in t) {
+            var el = document.getElementById(id);
+            if (el) el.textContent = t[id];
+        }
+
+        // Afficher confirmation
+        var msg = lng === 'fr'
+            ? '🌐 Langue changée en Français sur tout le système'
+            : '🌐 Language changed to English across the system';
+        toast(msg);
+    }
+
+    /* TOAST */
+    function toast(msg) {
+        var t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(function() { t.classList.remove('show'); }, 2500);
+    }
+
+    /* SAUVEGARDER */
+    function sauvegarder() {
+        var p = {
+            seuilAuth:   seuilAuth,
+            seuilFals:   seuilFals,
+            theme:       themeActuel,
+            revision:    document.getElementById('tog-revision').checked,
+            formats:     document.getElementById('sel-formats').value,
+            langue:      document.getElementById('sel-langue').value,
+            institution: document.getElementById('inp-institution').value,
+            notifs:      document.getElementById('tog-notif').checked,
+            sauvegarde:  document.getElementById('tog-sauvegarde').checked,
+            session:     document.getElementById('sel-session').value,
+            deuxFA:      document.getElementById('tog-2fa').checked,
+            journal:     document.getElementById('tog-journal').checked
+        };
+        localStorage.setItem('sidad_parametres', JSON.stringify(p));
+        toast(langue === 'fr' ? '✅ Paramètres sauvegardés !' : '✅ Settings saved!');
+    }
+
+    /* RÉINITIALISER */
+    function reinitialiser() {
+        seuilAuth = 70; seuilFals = 40;
+        document.getElementById('val-auth').textContent       = '70%';
+        document.getElementById('val-fals').textContent       = '40%';
+        document.getElementById('tog-revision').checked       = true;
+        document.getElementById('sel-formats').value          = 'tous';
+        document.getElementById('sel-langue').value           = 'fr';
+        document.getElementById('inp-institution').value      = 'Ministère du Numérique — Guinée';
+        document.getElementById('tog-notif').checked          = true;
+        document.getElementById('tog-sauvegarde').checked     = true;
+        document.getElementById('sel-session').value          = '60';
+        document.getElementById('tog-2fa').checked            = false;
+        document.getElementById('tog-journal').checked        = true;
+        appliquerTheme('noir');
+        localStorage.removeItem('sidad_parametres');
+        toast(langue === 'fr' ? '↺ Paramètres réinitialisés !' : '↺ Settings reset!');
+    }
+
+    /* CHARGER */
+    function charger() {
+        appliquerTheme(themeActuel);
+        try {
+            var data = localStorage.getItem('sidad_parametres');
+            if (!data) return;
+            var p = JSON.parse(data);
+            if (p.theme)       appliquerTheme(p.theme);
+            if (p.seuilAuth)   { seuilAuth = p.seuilAuth; document.getElementById('val-auth').textContent = seuilAuth + '%'; }
+            if (p.seuilFals)   { seuilFals = p.seuilFals; document.getElementById('val-fals').textContent = seuilFals + '%'; }
+            if (p.revision    !== undefined) document.getElementById('tog-revision').checked   = p.revision;
+            if (p.formats)                   document.getElementById('sel-formats').value       = p.formats;
+            if (p.langue)                    document.getElementById('sel-langue').value        = p.langue;
+            if (p.institution)               document.getElementById('inp-institution').value  = p.institution;
+            if (p.notifs      !== undefined) document.getElementById('tog-notif').checked      = p.notifs;
+            if (p.sauvegarde  !== undefined) document.getElementById('tog-sauvegarde').checked = p.sauvegarde;
+            if (p.session)                   document.getElementById('sel-session').value      = p.session;
+            if (p.deuxFA      !== undefined) document.getElementById('tog-2fa').checked        = p.deuxFA;
+            if (p.journal     !== undefined) document.getElementById('tog-journal').checked    = p.journal;
+        } catch(e) {}
+    }
+
+    charger();
+
+    /* ── Charger langue sauvegardée ── */
+    (function() {
+        var lg = localStorage.getItem('sidad_langue');
+        if (lg) setLangue(lg);
+    })();
+
+    /* ══ DÉCONNEXION ══ */
+    function seDeconnecter() {
+        var msg = langue === 'fr' ? 'Voulez-vous vous déconnecter ?' : 'Do you want to sign out?';
+        if (confirm(msg)) {
+            localStorage.removeItem('sidad_session');
+            window.location.href = 'index.html';
+        }
+    }
+
+    /* ══ CHARGER PROFIL DEPUIS SESSION ══ */
+    (function() {
+        var session = JSON.parse(localStorage.getItem('sidad_session') || 'null');
+        if (!session) return;
+        var nomEl  = document.getElementById('profil-nom');
+        var avEl   = document.getElementById('profil-avatar');
+        var roleEl = document.getElementById('profil-role');
+        if (nomEl) nomEl.textContent = session.nom;
+        if (avEl)  avEl.textContent  = session.nom.split(' ').map(function(w){ return w[0]; }).join('').substring(0,2).toUpperCase();
+        var rolesLabels = {
+            'superadmin': {'fr':'Super Administrateur','en':'Super Administrator'},
+            'admin':      {'fr':'Administrateur',      'en':'Administrator'},
+            'agent':      {'fr':'Agent',               'en':'Agent'},
+            'auditeur':   {'fr':'Auditeur',            'en':'Auditor'},
+            'observateur':{'fr':'Observateur',         'en':'Observer'}
+        };
+        if (roleEl && rolesLabels[session.role]) {
+            var lg = localStorage.getItem('sidad_langue') || 'fr';
+            roleEl.textContent = rolesLabels[session.role][lg] || session.role;
+        }
+    })();
+
+
+    /* ══ INIT LANGUE ══ */
+    (function() {
+        var lg = localStorage.getItem('sidad_langue');
+        if (lg) setLangue(lg);
+    })();
+
+
+    /* ══ CONTRÔLE D'ACCÈS PAR RÔLE ══ */
+    (function() {
+        var session = JSON.parse(localStorage.getItem('sidad_session') || 'null');
+        if (!session) { window.location.href = 'index.html'; return; }
+
+        var role = session.role || 'agent';
+
+        // Menus visibles par rôle
+        // superadmin/admin : tout
+        // agent/auditeur/observateur : pas Utilisateurs
+        var peutVoirUtilisateurs = ['superadmin', 'admin'].indexOf(role) !== -1;
+
+        // Cacher le menu Utilisateurs si pas autorisé
+        if (!peutVoirUtilisateurs) {
+            var navUtil = document.getElementById('nav-utilisateurs');
+            if (navUtil) navUtil.style.display = 'none';
+        }
+
+        // Bloquer l'accès direct à utilisateurs.html
+        var pageActuelle = window.location.pathname.split('/').pop();
+        if (pageActuelle === 'utilisateurs.html' && !peutVoirUtilisateurs) {
+            window.location.href = 'dashboard.html';
+        }
+    })();
+
+
+
+    /* ══ MENU MOBILE ══ */
+    function toggleMenuMobile() {
+        document.getElementById('overlay-mobile').classList.toggle('actif');
+        document.getElementById('sidebar-mobile').classList.toggle('actif');
+    }
+    function fermerMenuMobile() {
+        document.getElementById('overlay-mobile').classList.remove('actif');
+        document.getElementById('sidebar-mobile').classList.remove('actif');
+    }
+    // Copier la nav dans le menu mobile
+    (function() {
+        var nav = document.querySelector('.sidebar-nav');
+        var profil = document.querySelector('.sidebar-profil');
+        var smNav = document.getElementById('sm-nav');
+        var smProfil = document.getElementById('sm-profil');
+        if (nav && smNav) smNav.appendChild(nav.cloneNode(true));
+        if (profil && smProfil) {
+            smProfil.style.borderTop = '1px solid rgba(255,255,255,0.07)';
+            smProfil.style.marginTop = 'auto';
+            smProfil.appendChild(profil.cloneNode(true));
+        }
+    })();
+
+</script>
+</body>
+</html>

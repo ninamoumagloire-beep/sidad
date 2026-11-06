@@ -1,0 +1,19 @@
+# Local database (created automatically on first run)
+*.db
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Generated reports and uploads
+*.log
+uploads/
+rapports/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

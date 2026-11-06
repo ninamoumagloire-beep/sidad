@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIDAD — Utilisateurs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --rouge:   #CE1126;
+            --jaune:   #FCD116;
+            --vert:    #009460;
+            --bg:      #07080D;
+            --card:    #0E1018;
+            --surface: #141720;
+            --border:  rgba(255,255,255,0.07);
+            --texte:   #F0F2F8;
+            --muted:   #4A5068;
+            --gris:    #7B8099;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--texte);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ══════════════════════════════
+           SIDEBAR
+        ══════════════════════════════ */
+        .sidebar {
+            width: 240px;
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            flex-shrink: 0;
+        }
+        .sidebar-logo {
+            padding: 28px 20px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .logo-icon {
+            width: 42px; height: 42px;
+            background: linear-gradient(135deg, #FCD116, #c9900a);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 0 20px rgba(252,209,22,0.3);
+            flex-shrink: 0;
+        }
+        .logo-nom  { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; }
+        .logo-pays { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+
+        .sidebar-nav {
+            flex: 1; padding: 20px 12px;
+            display: flex; flex-direction: column; gap: 2px;
+        }
+        .nav-section {
+            font-size: 10px; font-weight: 600; letter-spacing: 1.5px;
+            text-transform: uppercase; color: var(--muted); padding: 12px 10px 6px;
+        }
+        .nav-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px; border-radius: 8px; cursor: pointer;
+            transition: all 0.2s; color: var(--gris); font-size: 13.5px;
+            border: 1px solid transparent; text-decoration: none;
+        }
+        .nav-item:hover { background: var(--surface); color: var(--texte); }
+        .nav-item.actif {
+            background: rgba(252,209,22,0.1);
+            border-color: rgba(252,209,22,0.25);
+            color: var(--jaune);
+        }
+        .nav-icone { font-size: 16px; width: 20px; text-align: center; }
+
+        .sidebar-profil {
+            padding: 14px 12px 20px;
+            border-top: 1px solid var(--border);
+        }
+        .profil-carte {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px; background: var(--surface); border-radius: 8px;
+        }
+        .profil-avatar {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700; flex-shrink: 0;
+        }
+        .profil-nom  { font-size: 13px; font-weight: 500; }
+        .profil-role { font-size: 11px; color: var(--muted); }
+
+        /* ══════════════════════════════
+           CONTENU PRINCIPAL
+        ══════════════════════════════ */
+        .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+        .topbar {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 0 28px; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .topbar-titre { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; }
+        .topbar-sous  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+        .topbar-droite { display: flex; align-items: center; gap: 10px; }
+
+        .lang-toggle {
+            display: flex; background: var(--surface);
+            border: 1px solid var(--border); border-radius: 7px; overflow: hidden;
+        }
+        .lang-btn {
+            padding: 6px 16px; font-size: 11px; font-weight: 700;
+            font-family: 'DM Sans', sans-serif; letter-spacing: 0.5px;
+            cursor: pointer; border: none; background: none;
+            color: var(--gris); transition: all 0.2s;
+        }
+        .lang-btn.actif { background: var(--jaune); color: var(--bg); }
+
+        .contenu {
+            flex: 1; overflow-y: auto; padding: 28px;
+            display: flex; flex-direction: column; gap: 20px;
+        }
+
+        @keyframes apparait {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ══════════════════════════════
+           STATS RAPIDES
+        ══════════════════════════════ */
+        .stats-mini {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            animation: apparait 0.4s ease both;
+        }
+        .stat-mini-carte {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .stat-mini-icone {
+            width: 38px; height: 38px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
+        }
+        .stat-mini-num {
+            font-family: 'Syne', sans-serif;
+            font-size: 22px; font-weight: 800; line-height: 1;
+        }
+        .stat-mini-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+        /* ══════════════════════════════
+           BARRE FILTRES
+        ══════════════════════════════ */
+        .filtres-barre {
+            display: flex; align-items: center; gap: 12px;
+            animation: apparait 0.4s ease 0.05s both;
+        }
+        .recherche-wrap { position: relative; flex: 1; }
+        .recherche-icone {
+            position: absolute; left: 13px; top: 50%;
+            transform: translateY(-50%);
+            font-size: 15px; opacity: 0.4; pointer-events: none;
+        }
+        .recherche-input {
+            width: 100%;
+            padding: 11px 14px 11px 40px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            color: var(--texte); font-size: 13px;
+            font-family: 'DM Sans', sans-serif;
+            outline: none; transition: border-color 0.2s;
+        }
+        .recherche-input::placeholder { color: var(--muted); }
+        .recherche-input:focus { border-color: rgba(252,209,22,0.4); }
+
+        .filtre-select {
+            padding: 11px 14px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            color: var(--texte); font-size: 13px;
+            font-family: 'DM Sans', sans-serif;
+            outline: none; cursor: pointer;
+        }
+        .filtre-select:focus { border-color: rgba(252,209,22,0.4); }
+
+        .btn-ajouter {
+            padding: 11px 20px;
+            background: linear-gradient(135deg, var(--jaune), #c9900a);
+            color: var(--bg);
+            border: none; border-radius: 9px;
+            font-size: 13px; font-weight: 700;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer; transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-ajouter:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(252,209,22,0.3); }
+
+        /* ══════════════════════════════
+           TABLEAU UTILISATEURS
+        ══════════════════════════════ */
+        .table-carte {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            animation: apparait 0.4s ease 0.1s both;
+        }
+        .table-entete {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .table-titre {
+            font-family: 'Syne', sans-serif;
+            font-size: 13px; font-weight: 700;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .compteur {
+            font-size: 11px; font-weight: 600;
+            padding: 3px 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px; color: var(--gris);
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        thead tr { background: var(--surface); }
+        th {
+            padding: 10px 16px;
+            text-align: left;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 1px; text-transform: uppercase;
+            color: var(--muted); white-space: nowrap;
+        }
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+        }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: rgba(255,255,255,0.02); }
+        td {
+            padding: 13px 16px;
+            font-size: 13px; color: var(--gris);
+            vertical-align: middle;
+        }
+
+        /* Cellule utilisateur avec avatar */
+        .user-cell {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .user-avatar-sm {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700;
+            flex-shrink: 0; color: white;
+        }
+        .user-nom  { font-size: 13px; font-weight: 600; color: var(--texte); }
+        .user-email { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+        /* Badge rôle */
+        .badge-role {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 700;
+        }
+        .role-superadmin { background: linear-gradient(135deg, rgba(252,209,22,0.15), rgba(206,17,38,0.1)); color: #FCD116; border: 1px solid rgba(252,209,22,0.35); }
+        .role-admin    { background: rgba(99,102,241,0.12); color: #818cf8; border: 1px solid rgba(99,102,241,0.2); }
+        .role-agent    { background: rgba(0,148,96,0.12);   color: var(--vert);  border: 1px solid rgba(0,148,96,0.2); }
+        .role-auditeur { background: rgba(252,209,22,0.12); color: var(--jaune); border: 1px solid rgba(252,209,22,0.2); }
+        .role-observateur { background: rgba(255,255,255,0.05); color: var(--gris); border: 1px solid var(--border); }
+
+        /* Badge statut */
+        .badge-statut {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 600;
+        }
+        .statut-actif   { background: rgba(0,148,96,0.1);  color: var(--vert);  border: 1px solid rgba(0,148,96,0.2); }
+        .statut-inactif { background: rgba(206,17,38,0.1); color: var(--rouge); border: 1px solid rgba(206,17,38,0.2); }
+
+        .point {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .point-vert  { background: var(--vert); }
+        .point-rouge { background: var(--rouge); }
+
+        /* Boutons action */
+        .actions-cell { display: flex; gap: 6px; }
+        .btn-action {
+            padding: 5px 11px;
+            border-radius: 6px;
+            font-size: 11px; font-weight: 600;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s; border: 1px solid;
+        }
+        .btn-editer {
+            background: rgba(252,209,22,0.08);
+            border-color: rgba(252,209,22,0.2);
+            color: var(--jaune);
+        }
+        .btn-editer:hover { background: rgba(252,209,22,0.15); }
+        .btn-bloquer {
+            background: rgba(206,17,38,0.08);
+            border-color: rgba(206,17,38,0.2);
+            color: var(--rouge);
+        }
+        .btn-bloquer:hover { background: rgba(206,17,38,0.15); }
+
+        /* ══════════════════════════════
+           MODAL AJOUTER UTILISATEUR
+        ══════════════════════════════ */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(7,8,13,0.85);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 999;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .modal-overlay.visible { opacity: 1; pointer-events: all; }
+
+        .modal {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            width: 460px;
+            animation: apparait 0.3s ease both;
+        }
+        .modal-titre {
+            font-family: 'Syne', sans-serif;
+            font-size: 18px; font-weight: 800;
+            margin-bottom: 6px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .modal-sous {
+            font-size: 13px; color: var(--gris);
+            margin-bottom: 24px;
+        }
+
+        .champ { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+        .champ label { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.5); }
+        .champ input, .champ select {
+            padding: 11px 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            color: var(--texte); font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
+            outline: none; transition: border-color 0.2s;
+        }
+        .champ input::placeholder { color: var(--muted); }
+        .champ input:focus, .champ select:focus { border-color: rgba(252,209,22,0.4); }
+
+        .modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+        .btn-confirmer {
+            flex: 1; padding: 13px;
+            background: linear-gradient(135deg, var(--jaune), #c9900a);
+            color: var(--bg); border: none; border-radius: 9px;
+            font-size: 14px; font-weight: 700;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-confirmer:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(252,209,22,0.3); }
+        .btn-annuler {
+            flex: 1; padding: 13px;
+            background: var(--surface);
+            color: var(--texte); border: 1px solid var(--border); border-radius: 9px;
+            font-size: 14px; font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-annuler:hover { border-color: rgba(255,255,255,0.2); }
+
+
+        /* ── Thèmes globaux ── */
+        body.theme-blanc { --bg:#F0F2F8; --card:#FFFFFF; --surface:#E8EAF0; --border:rgba(0,0,0,0.08); --texte:#1A1D2E; --muted:#8890A8; --gris:#6B7490; }
+        body.theme-bleu  { --bg:#0A1628; --card:#0F1E3A; --surface:#162440; --border:rgba(255,255,255,0.08); --texte:#E0E8FF; --muted:#3A5080; --gris:#5A78A8; }
+        body.theme-bleu-clair { --bg:#1E3A5F; --card:#24456E; --surface:#2A5080; --border:rgba(255,255,255,0.1); --texte:#E8F0FF; --muted:#4A7AB0; --gris:#6A98C8; }
+        body.theme-vert-fonce { --bg:#0A1A0F; --card:#0F2414; --surface:#142E18; --border:rgba(0,148,96,0.15); --texte:#D0F0DC; --muted:#2A5A34; --gris:#4A8A58; }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+    
+        .btn-deconnexion {
+            width: 100%;
+            margin-top: 8px;
+            padding: 9px 12px;
+            background: rgba(206,17,38,0.08);
+            border: 1px solid rgba(206,17,38,0.2);
+            border-radius: 8px;
+            color: #f87171;
+            font-size: 12.5px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .btn-deconnexion:hover {
+            background: rgba(206,17,38,0.15);
+            border-color: rgba(206,17,38,0.4);
+        }
+        
+        /* ══ RESPONSIVE MOBILE ══ */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 12px;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                position: relative;
+                z-index: 100;
+            }
+            .sidebar-logo { padding: 12px 8px; border-bottom: none; }
+            .logo-pays { display: none; }
+            .sidebar-nav { display: none; }
+            .sidebar-profil { display: none; }
+
+            /* Menu hamburger */
+            .hamburger {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                cursor: pointer;
+                padding: 10px;
+            }
+            .hamburger span {
+                width: 22px; height: 2px;
+                background: var(--gris);
+                border-radius: 2px;
+                transition: all 0.3s;
+            }
+
+            /* Menu mobile overlay */
+            .menu-mobile {
+                display: none;
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.7);
+                z-index: 200;
+            }
+            .menu-mobile.ouvert { display: block; }
+            .menu-mobile-inner {
+                width: 260px;
+                height: 100%;
+                background: var(--card);
+                border-right: 1px solid var(--border);
+                padding: 20px 12px;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                overflow-y: auto;
+            }
+            .menu-mobile-close {
+                align-self: flex-end;
+                background: none; border: none;
+                color: var(--gris); font-size: 20px;
+                cursor: pointer; margin-bottom: 12px;
+            }
+
+            .main { flex: 1; overflow: auto; }
+            .topbar { padding: 0 16px; height: 56px; }
+            .topbar-titre { font-size: 15px; }
+            .topbar-date { display: none; }
+            .contenu { padding: 16px; gap: 16px; }
+
+            /* Grilles responsive */
+            .stats-grille { grid-template-columns: 1fr; }
+            .info-grille  { grid-template-columns: 1fr; }
+            .seuils-grid  { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            .topbar-droite { gap: 6px; }
+            .systeme-actif { padding: 5px 8px; font-size: 11px; }
+            .lang-btn { padding: 5px 12px; }
+        }
+
+        
+        /* ══ BOUTON HAMBURGER ══ */
+        .btn-hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 10px;
+            cursor: pointer;
+        }
+        .btn-hamburger span {
+            width: 20px; height: 2px;
+            background: var(--gris);
+            border-radius: 2px;
+            display: block;
+            transition: all 0.3s;
+        }
+        @media (max-width: 768px) {
+            .btn-hamburger { display: flex; }
+        }
+
+        /* ══ SIDEBAR MOBILE ══ */
+        .overlay-mobile {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 300;
+        }
+        .overlay-mobile.actif { display: block; }
+
+        .sidebar-mobile {
+            position: fixed;
+            top: 0; left: 0;
+            width: 260px; height: 100%;
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            z-index: 301;
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+            display: flex; flex-direction: column;
+            overflow-y: auto;
+        }
+        .sidebar-mobile.actif { transform: translateX(0); }
+
+        .sm-header {
+            display: flex; align-items: center;
+            justify-content: space-between;
+            padding: 20px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        </style>
+</head>
+<body>
+<script>
+    /* ── Appliquer le thème sauvegardé ── */
+    (function() {
+        const themes = { 'blanc':'theme-blanc', 'bleu':'theme-bleu', 'bleu-clair':'theme-bleu-clair', 'vert-fonce':'theme-vert-fonce' };
+        const t = localStorage.getItem('sidad_theme');
+        if (t && themes[t]) document.body.classList.add(themes[t]);
+    })();
+</script>
+
+<!-- ═══════════ MODAL AJOUTER ═══════════ -->
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+        <div class="modal-titre">👤 <span id="modal-titre">Ajouter un utilisateur</span></div>
+        <div class="modal-sous" id="modal-sous">Remplissez les informations du nouvel utilisateur</div>
+
+        <div class="champ">
+            <label id="lbl-nom">Nom complet</label>
+            <input type="text" id="inp-nom" placeholder="Ex: Mamadou Diallo">
+        </div>
+        <div class="champ">
+            <label id="lbl-email">Adresse email</label>
+            <input type="email" id="inp-email" placeholder="Ex: mamadou@sidad.gov.gn">
+        </div>
+        <div class="champ">
+            <label id="lbl-role">Rôle</label>
+            <select id="inp-role">
+                <option value="agent" id="opt-agent">Agent</option>
+                <option value="admin" id="opt-admin">Administrateur</option>
+                <option value="auditeur" id="opt-auditeur">Auditeur</option>
+                <option value="observateur" id="opt-observateur">Observateur</option>
+            </select>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-annuler" id="btn-annuler" onclick="fermerModal()">Annuler</button>
+            <button class="btn-confirmer" id="btn-confirmer" onclick="ajouterUtilisateur()">✓ Ajouter</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon">🛡️</div>
+        <div>
+            <div class="logo-nom">SIDAD</div>
+            <div class="logo-pays" id="sb-pays">République de Guinée</div>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section" id="nav-s1">Principal</div>
+        <a class="nav-item" href="dashboard.html">
+            <span class="nav-icone">📊</span>
+            <span id="nav-dashboard">Tableau de Bord</span>
+        </a>
+        <a class="nav-item" href="analyser.html">
+            <span class="nav-icone">🔍</span>
+            <span id="nav-analyser">Analyser</span>
+        </a>
+        <a class="nav-item" href="historique.html">
+            <span class="nav-icone">📋</span>
+            <span id="nav-historique">Historique</span>
+        </a>
+        <div class="nav-section" style="margin-top:8px;" id="nav-s2">Administration</div>
+        <a class="nav-item actif" href="utilisateurs.html">
+            <span class="nav-icone">👥</span>
+            <span id="nav-utilisateurs">Utilisateurs</span>
+        </a>
+        <a class="nav-item" href="parametres.html">
+            <span class="nav-icone">⚙️</span>
+            <span id="nav-parametres">Paramètres</span>
+        </a>
+    </nav>
+    <div class="sidebar-profil">
+        <div class="profil-carte">
+            <div class="profil-avatar" id="profil-avatar">YN</div>
+            <div>
+                <div class="profil-nom" id="profil-nom">Yves Ninamou</div>
+                <div class="profil-role" id="profil-role">Administrateur</div>
+            </div>
+        </div>
+        <button class="btn-deconnexion" onclick="seDeconnecter()" id="btn-deco">
+            <span>🚪</span>
+            <span id="lbl-deco">Se déconnecter</span>
+        </button>
+    </div>
+</aside>
+
+<!-- ═══════════ CONTENU PRINCIPAL ═══════════ -->
+<!-- ═══ MENU MOBILE ═══ -->
+<div class="overlay-mobile" id="overlay-mobile" onclick="fermerMenuMobile()"></div>
+<div class="sidebar-mobile" id="sidebar-mobile">
+    <div class="sm-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:36px;height:36px;background:linear-gradient(135deg,#FCD116,#c9900a);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;">🛡️</div>
+            <span style="font-family:Syne,sans-serif;font-weight:800;font-size:16px;">SIDAD</span>
+        </div>
+        <button onclick="fermerMenuMobile()" style="background:none;border:none;color:var(--gris);font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div id="sm-nav"></div>
+    <div id="sm-profil"></div>
+</div>
+<div class="main">
+
+    <header class="topbar">
+        <div>
+            <div class="topbar-titre" id="top-titre">Gestion des Utilisateurs</div>
+            <div class="topbar-sous"  id="top-sous">Gérez les accès au système SIDAD</div>
+        </div>
+        <div class="topbar-droite">
+            <!-- Bouton hamburger mobile -->
+            <button class="btn-hamburger" id="btn-hamburger" onclick="toggleMenuMobile()" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="lang-toggle">
+                <button class="lang-btn actif" id="btn-fr" onclick="changerLangue('fr')">FR</button>
+                <button class="lang-btn"       id="btn-en" onclick="changerLangue('en')">EN</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="contenu">
+
+        <!-- ── Bannière Super Admin ── -->
+        <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;background:linear-gradient(135deg,rgba(252,209,22,0.08),rgba(206,17,38,0.05));border:1px solid rgba(252,209,22,0.25);border-radius:12px;animation:apparait 0.4s ease both;">
+            <div style="width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,#FCD116,#c9900a);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 0 20px rgba(252,209,22,0.3);flex-shrink:0;">👑</div>
+            <div style="flex:1;">
+                <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--jaune);margin-bottom:3px;" id="sa-titre">Connecté en tant que Super Administrateur</div>
+                <div style="font-size:12px;color:var(--gris);" id="sa-desc">Yves Ninamou — Vous avez un accès total et exclusif. Vous pouvez créer des Administrateurs pour vos clients.</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+                <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;" id="sa-licence-lbl">Licence</div>
+                <div style="font-size:13px;font-weight:700;color:var(--texte);">SIDAD-2025-GN</div>
+            </div>
+        </div>
+
+        <!-- ── Stats mini ── -->
+        <div class="stats-mini">
+            <div class="stat-mini-carte">
+                <div class="stat-mini-icone" style="background:rgba(99,102,241,0.12)">👥</div>
+                <div>
+                    <div class="stat-mini-num" id="stat-total" style="color:#818cf8">0</div>
+                    <div class="stat-mini-lbl" id="lbl-total">Total utilisateurs</div>
+                </div>
+            </div>
+            <div class="stat-mini-carte">
+                <div class="stat-mini-icone" style="background:rgba(0,148,96,0.12)">✅</div>
+                <div>
+                    <div class="stat-mini-num" id="stat-actifs" style="color:var(--vert)">0</div>
+                    <div class="stat-mini-lbl" id="lbl-actifs">Actifs</div>
+                </div>
+            </div>
+            <div class="stat-mini-carte">
+                <div class="stat-mini-icone" style="background:rgba(252,209,22,0.12)">🛡️</div>
+                <div>
+                    <div class="stat-mini-num" id="stat-admins" style="color:var(--jaune)">0</div>
+                    <div class="stat-mini-lbl" id="lbl-admins">Admins clients</div>
+                </div>
+            </div>
+            <div class="stat-mini-carte">
+                <div class="stat-mini-icone" style="background:rgba(206,17,38,0.12)">🚫</div>
+                <div>
+                    <div class="stat-mini-num" id="stat-inactifs" style="color:var(--rouge)">0</div>
+                    <div class="stat-mini-lbl" id="lbl-inactifs">Inactifs</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Filtres ── -->
+        <div class="filtres-barre">
+            <div class="recherche-wrap">
+                <span class="recherche-icone">🔍</span>
+                <input type="text" class="recherche-input" id="recherche"
+                       placeholder="Rechercher par nom ou email..."
+                       oninput="filtrerTableau()">
+            </div>
+            <select class="filtre-select" id="filtre-role" onchange="filtrerTableau()">
+                <option value="tous"        id="opt-tous">Tous les rôles</option>
+                <option value="superadmin"  id="opt-f-superadmin">Super Admin</option>
+                <option value="admin"       id="opt-f-admin">Administrateur</option>
+                <option value="agent"       id="opt-f-agent">Agent</option>
+                <option value="auditeur"    id="opt-f-auditeur">Auditeur</option>
+                <option value="observateur" id="opt-f-obs">Observateur</option>
+            </select>
+            <select class="filtre-select" id="filtre-statut" onchange="filtrerTableau()">
+                <option value="tous"    id="opt-s-tous">Tous les statuts</option>
+                <option value="actif"   id="opt-s-actif">✅ Actif</option>
+                <option value="inactif" id="opt-s-inactif">🚫 Inactif</option>
+            </select>
+            <button class="btn-ajouter" id="btn-ajouter" onclick="ouvrirModal()">
+                + Ajouter un utilisateur
+            </button>
+            <button onclick="reinitialiserDonnees()" style="padding:11px 14px;background:var(--surface);border:1px solid var(--border);border-radius:9px;color:var(--gris);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.2s;" title="Réinitialiser">↺</button>
+        </div>
+
+        <!-- ── Tableau ── -->
+        <div class="table-carte">
+            <div class="table-entete">
+                <div class="table-titre">
+                    👥 <span id="tbl-titre">Liste des utilisateurs</span>
+                    <span class="compteur" id="compteur">0</span>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th id="col-utilisateur">Utilisateur</th>
+                        <th id="col-role">Rôle</th>
+                        <th id="col-statut">Statut</th>
+                        <th id="col-analyses">Analyses</th>
+                        <th id="col-derniere">Dernière connexion</th>
+                        <th id="col-actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="corps-tableau"></tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    /* ══════════════════════════════════════
+       DONNÉES UTILISATEURS
+    ══════════════════════════════════════ */
+    // Données par défaut
+    const DEFAUT = [
+        { id:1, nom:'Yves Ninamou',      email:'admin@sidad.gov.gn',   role:'superadmin',       statut:'actif',   analyses:45, connexion:'2025-01-21', couleur:'#6366f1' },
+        { id:2, nom:'Agent Kouyaté',     email:'agent@sidad.gov.gn',   role:'agent',       statut:'actif',   analyses:32, connexion:'2025-01-21', couleur:'#009460' },
+        { id:3, nom:'Fatoumata Diallo',  email:'fdiallo@sidad.gov.gn', role:'auditeur',    statut:'actif',   analyses:18, connexion:'2025-01-20', couleur:'#f59e0b' },
+        { id:4, nom:'Ibrahima Baldé',    email:'ibalde@sidad.gov.gn',  role:'agent',       statut:'actif',   analyses:27, connexion:'2025-01-19', couleur:'#3b82f6' },
+        { id:5, nom:'Mariama Camara',    email:'mcamara@sidad.gov.gn', role:'observateur', statut:'inactif', analyses:5,  connexion:'2025-01-10', couleur:'#8b5cf6' },
+        { id:6, nom:'Alpha Condé Jr',    email:'aconde@sidad.gov.gn',  role:'agent',       statut:'actif',   analyses:21, connexion:'2025-01-18', couleur:'#ec4899' },
+    ];
+
+    // Charger depuis localStorage ou utiliser les données par défaut
+    function chargerUtilisateurs() {
+        try {
+            const data = localStorage.getItem('sidad_utilisateurs');
+            return data ? JSON.parse(data) : [...DEFAUT];
+        } catch(e) { return [...DEFAUT]; }
+    }
+
+    // Sauvegarder dans localStorage
+    function sauvegarderUtilisateurs() {
+        localStorage.setItem('sidad_utilisateurs', JSON.stringify(utilisateurs));
+    }
+
+    let utilisateurs = chargerUtilisateurs();
+    let filtres = [...utilisateurs];
+    let langue  = 'fr';
+
+    /* ══════════════════════════════════════
+       TRADUCTIONS
+    ══════════════════════════════════════ */
+    const TEXTES = {
+        fr: {
+            'sb-pays':         'République de Guinée',
+            'nav-s1':          'Principal',  'nav-s2':    'Administration',
+            'nav-dashboard':   'Tableau de Bord',
+            'nav-analyser':    'Analyser',
+            'nav-historique':  'Historique',
+            'nav-utilisateurs':'Utilisateurs',
+            'nav-parametres':  'Paramètres',
+            'profil-role':     'Administrateur',
+            'top-titre':       'Gestion des Utilisateurs',
+            'top-sous':        'Gérez les accès au système SIDAD',
+            'sa-titre':        'Connecté en tant que Super Administrateur',
+            'sa-desc':         'Yves Ninamou — Vous avez un accès total et exclusif. Vous pouvez créer des Administrateurs pour vos clients.',
+            'sa-licence-lbl':  'Licence',
+            'lbl-total':       'Total utilisateurs',
+            'lbl-actifs':      'Actifs',
+            'lbl-admins':      'Administrateurs',
+            'lbl-inactifs':    'Inactifs',
+            'tbl-titre':       'Liste des utilisateurs',
+            'btn-ajouter':     '+ Ajouter un utilisateur',
+            'col-utilisateur': 'Utilisateur',
+            'col-role':        'Rôle',
+            'col-statut':      'Statut',
+            'col-analyses':    'Analyses',
+            'col-derniere':    'Dernière connexion',
+            'col-actions':     'Actions',
+            'opt-tous':        'Tous les rôles',
+            'opt-f-superadmin':'Super Admin',
+            'opt-f-admin':     'Administrateur',
+            'opt-f-agent':     'Agent',
+            'opt-f-auditeur':  'Auditeur',
+            'opt-f-obs':       'Observateur',
+            'opt-s-tous':      'Tous les statuts',
+            'opt-s-actif':     '✅ Actif',
+            'opt-s-inactif':   '🚫 Inactif',
+            'modal-titre':     'Ajouter un utilisateur',
+            'modal-sous':      'Remplissez les informations du nouvel utilisateur',
+            'lbl-nom':         'Nom complet',
+            'lbl-email':       'Adresse email',
+            'lbl-role':        'Rôle',
+            'opt-agent':       'Agent',
+            'opt-admin':       'Administrateur',
+            'opt-auditeur':    'Auditeur',
+            'opt-observateur': 'Observateur',
+            'btn-annuler':     'Annuler',
+            'btn-confirmer':   '✓ Ajouter',
+            'recherche-ph':    'Rechercher par nom ou email...',
+            roles: {
+                superadmin:  '👑 Super Admin',
+                admin:       '🛡️ Administrateur',
+                agent:       '👤 Agent',
+                auditeur:    '📋 Auditeur',
+                observateur: '👁️ Observateur',
+            },
+            statuts: {
+                actif:   'Actif',
+                inactif: 'Inactif',
+            },
+            'btn-editer':  '✏️ Éditer',
+            'btn-bloquer': '🚫 Bloquer',
+            'btn-activer': '✅ Activer',
+            'lbl-analyses': 'analyses',
+            'lbl-deco': 'Se déconnecter',
+        },
+        en: {
+            'sb-pays':         'Republic of Guinea',
+            'nav-s1':          'Main',  'nav-s2':    'Administration',
+            'nav-dashboard':   'Dashboard',
+            'nav-analyser':    'Analyse',
+            'nav-historique':  'History',
+            'nav-utilisateurs':'Users',
+            'nav-parametres':  'Settings',
+            'profil-role':     'Administrator',
+            'top-titre':       'User Management',
+            'top-sous':        'Manage access to the SIDAD system',
+            'sa-titre':        'Logged in as Super Administrator',
+            'sa-desc':         'Yves Ninamou — You have full and exclusive access. You can create Administrators for your clients.',
+            'sa-licence-lbl':  'License',
+            'lbl-total':       'Total users',
+            'lbl-actifs':      'Active',
+            'lbl-admins':      'Administrators',
+            'lbl-inactifs':    'Inactive',
+            'tbl-titre':       'User list',
+            'btn-ajouter':     '+ Add a user',
+            'col-utilisateur': 'User',
+            'col-role':        'Role',
+            'col-statut':      'Status',
+            'col-analyses':    'Analyses',
+            'col-derniere':    'Last login',
+            'col-actions':     'Actions',
+            'opt-tous':        'All roles',
+            'opt-f-superadmin':'Super Admin',
+            'opt-f-admin':     'Administrator',
+            'opt-f-agent':     'Agent',
+            'opt-f-auditeur':  'Auditor',
+            'opt-f-obs':       'Observer',
+            'opt-s-tous':      'All statuses',
+            'opt-s-actif':     '✅ Active',
+            'opt-s-inactif':   '🚫 Inactive',
+            'modal-titre':     'Add a user',
+            'modal-sous':      'Fill in the new user information',
+            'lbl-nom':         'Full name',
+            'lbl-email':       'Email address',
+            'lbl-role':        'Role',
+            'opt-agent':       'Agent',
+            'opt-admin':       'Administrator',
+            'opt-auditeur':    'Auditor',
+            'opt-observateur': 'Observer',
+            'btn-annuler':     'Cancel',
+            'btn-confirmer':   '✓ Add',
+            'recherche-ph':    'Search by name or email...',
+            roles: {
+                superadmin:  '👑 Super Admin',
+                admin:       '🛡️ Administrator',
+                agent:       '👤 Agent',
+                auditeur:    '📋 Auditor',
+                observateur: '👁️ Observer',
+            },
+            statuts: {
+                actif:   'Active',
+                inactif: 'Inactive',
+            },
+            'btn-editer':  '✏️ Edit',
+            'btn-bloquer': '🚫 Block',
+            'btn-activer': '✅ Activate',
+            'lbl-analyses': 'analyses',
+            'lbl-deco': 'Sign out',
+        }
+    };
+
+    /* ══════════════════════════════════════
+       METTRE À JOUR LES STATS
+    ══════════════════════════════════════ */
+    function mettreAJourStats() {
+        const total    = utilisateurs.length;
+        const actifs   = utilisateurs.filter(u => u.statut === 'actif').length;
+        const admins   = utilisateurs.filter(u => u.role === 'admin').length; // Admins clients seulement
+        const inactifs = utilisateurs.filter(u => u.statut === 'inactif').length;
+
+        document.getElementById('stat-total').textContent   = total;
+        document.getElementById('stat-actifs').textContent  = actifs;
+        document.getElementById('stat-admins').textContent  = admins;
+        document.getElementById('stat-inactifs').textContent= inactifs;
+    }
+
+    /* ══════════════════════════════════════
+       REMPLIR TABLEAU
+    ══════════════════════════════════════ */
+    function remplirTableau(data) {
+        const t     = TEXTES[langue];
+        const tbody = document.getElementById('corps-tableau');
+        document.getElementById('compteur').textContent = data.length;
+
+        tbody.innerHTML = data.map(u => {
+            const initiales   = u.nom.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+            const roleBadge   = 'badge-role role-' + u.role;
+            const statutBadge = 'badge-statut statut-' + u.statut;
+            const labelRole   = t.roles[u.role]    || u.role;
+            const labelStatut = t.statuts[u.statut] || u.statut;
+            const pointClass  = u.statut === 'actif' ? 'point point-vert' : 'point point-rouge';
+
+            const dateStr = new Date(u.connexion).toLocaleDateString(
+                langue === 'fr' ? 'fr-GN' : 'en-GB',
+                { day:'2-digit', month:'short', year:'numeric' }
+            );
+
+            // Le Super Admin ne peut jamais être bloqué
+        let btnBloquer = '';
+        if (u.role === 'superadmin') {
+            btnBloquer = `<span style="font-size:11px;color:var(--muted);padding:5px 8px;">👑 Protégé</span>`;
+        } else if (u.statut === 'actif') {
+            btnBloquer = `<button class="btn-action btn-bloquer" onclick="basculerStatut(${u.id})">${t['btn-bloquer']}</button>`;
+        } else {
+            btnBloquer = `<button class="btn-action btn-bloquer" style="background:rgba(0,148,96,0.08);border-color:rgba(0,148,96,0.2);color:var(--vert);" onclick="basculerStatut(${u.id})">${t['btn-activer']}</button>`;
+        }
+
+            return `<tr>
+                <td>
+                    <div class="user-cell">
+                        <div class="user-avatar-sm" style="background:${u.couleur}">${initiales}</div>
+                        <div>
+                            <div class="user-nom">${u.nom}</div>
+                            <div class="user-email">${u.email}</div>
+                        </div>
+                    </div>
+                </td>
+                <td><span class="${roleBadge}">${labelRole}</span></td>
+                <td><span class="${statutBadge}"><span class="${pointClass}"></span> ${labelStatut}</span></td>
+                <td style="color:var(--texte);font-weight:600;">${u.analyses} <span style="font-size:11px;color:var(--muted);font-weight:400;">${t['lbl-analyses']}</span></td>
+                <td>${dateStr}</td>
+                <td>
+                    <div class="actions-cell">
+                        <button class="btn-action btn-editer" onclick="editerUtilisateur(${u.id})">${t['btn-editer']}</button>
+                        ${btnBloquer}
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    /* ══════════════════════════════════════
+       FILTRES
+    ══════════════════════════════════════ */
+    function filtrerTableau() {
+        const recherche = document.getElementById('recherche').value.toLowerCase();
+        const role      = document.getElementById('filtre-role').value;
+        const statut    = document.getElementById('filtre-statut').value;
+
+        filtres = utilisateurs.filter(u => {
+            const matchRech   = recherche === '' ||
+                u.nom.toLowerCase().includes(recherche) ||
+                u.email.toLowerCase().includes(recherche);
+            const matchRole   = role   === 'tous' || u.role   === role;
+            const matchStatut = statut === 'tous' || u.statut === statut;
+            return matchRech && matchRole && matchStatut;
+        });
+
+        remplirTableau(filtres);
+    }
+
+    /* ══════════════════════════════════════
+       MODAL
+    ══════════════════════════════════════ */
+    function ouvrirModal() {
+        document.getElementById('inp-nom').value   = '';
+        document.getElementById('inp-email').value = '';
+        document.getElementById('inp-role').value  = 'agent';
+        document.getElementById('modal-overlay').classList.add('visible');
+    }
+
+    function fermerModal() {
+        document.getElementById('modal-overlay').classList.remove('visible');
+    }
+
+    function ajouterUtilisateur() {
+        const nom   = document.getElementById('inp-nom').value.trim();
+        const email = document.getElementById('inp-email').value.trim();
+        const role  = document.getElementById('inp-role').value;
+
+        if (!nom || !email) {
+            alert(langue === 'fr' ? 'Veuillez remplir tous les champs.' : 'Please fill in all fields.');
+            return;
+        }
+
+        const couleurs = ['#6366f1','#009460','#f59e0b','#3b82f6','#ec4899','#8b5cf6'];
+        const nouvel = {
+            id:        utilisateurs.length + 1,
+            nom:       nom,
+            email:     email,
+            role:      role,
+            statut:    'actif',
+            analyses:  0,
+            connexion: new Date().toISOString().split('T')[0],
+            couleur:   couleurs[Math.floor(Math.random() * couleurs.length)],
+        };
+
+        utilisateurs.push(nouvel);
+        sauvegarderUtilisateurs();
+        fermerModal();
+        mettreAJourStats();
+        filtrerTableau();
+    }
+
+    /* ══════════════════════════════════════
+       BLOQUER / ACTIVER
+    ══════════════════════════════════════ */
+    function basculerStatut(id) {
+        const u = utilisateurs.find(u => u.id === id);
+        if (!u) return;
+        // Interdire de bloquer le Super Admin
+        if (u.role === 'superadmin') {
+            alert(langue === 'fr'
+                ? '👑 Le Super Admin ne peut pas être bloqué.'
+                : '👑 The Super Admin cannot be blocked.');
+            return;
+        }
+        u.statut = u.statut === 'actif' ? 'inactif' : 'actif';
+        sauvegarderUtilisateurs();
+        mettreAJourStats();
+        filtrerTableau();
+    }
+
+    function editerUtilisateur(id) {
+        alert(langue === 'fr'
+            ? '✏️ Fonctionnalité d\'édition disponible dans la version complète.'
+            : '✏️ Edit feature available in the full version.');
+    }
+
+    /* ══════════════════════════════════════
+       CHANGER LANGUE
+    ══════════════════════════════════════ */
+    function changerLangue(lng) {
+        langue = lng;
+        localStorage.setItem('sidad_langue', lng);
+        document.getElementById('btn-fr').classList.toggle('actif', lng === 'fr');
+        document.getElementById('btn-en').classList.toggle('actif', lng === 'en');
+
+        const t = TEXTES[lng];
+        for (const [id, val] of Object.entries(t)) {
+            if (typeof val === 'object') continue;
+            const el = document.getElementById(id);
+            if (el) el.textContent = val;
+        }
+        document.getElementById('recherche').placeholder = t['recherche-ph'];
+        remplirTableau(filtres);
+    }
+
+    /* ══════════════════════════════════════
+       INIT
+    ══════════════════════════════════════ */
+    mettreAJourStats();
+    remplirTableau(utilisateurs);
+
+    // Bouton réinitialiser les données (utile pour les tests)
+    function reinitialiserDonnees() {
+        if (confirm(langue === 'fr'
+            ? 'Réinitialiser la liste aux données par défaut ?'
+            : 'Reset the list to default data?')) {
+            localStorage.removeItem('sidad_utilisateurs');
+            utilisateurs = [...DEFAUT];
+            filtres = [...utilisateurs];
+            mettreAJourStats();
+            remplirTableau(utilisateurs);
+        }
+    }
+
+    /* ══ INIT LANGUE ══ */
+    (function() {
+        var lg = localStorage.getItem('sidad_langue');
+        if (lg && lg !== langue) changerLangue(lg);
+    })();
+
+
+    /* ══ DÉCONNEXION ══ */
+    function seDeconnecter() {
+        var msg = langue === 'fr' ? 'Voulez-vous vous déconnecter ?' : 'Do you want to sign out?';
+        if (confirm(msg)) {
+            localStorage.removeItem('sidad_session');
+            window.location.href = 'index.html';
+        }
+    }
+
+    /* ══ CHARGER PROFIL DEPUIS SESSION ══ */
+    (function() {
+        var session = JSON.parse(localStorage.getItem('sidad_session') || 'null');
+        if (!session) return;
+        var nomEl  = document.getElementById('profil-nom');
+        var avEl   = document.getElementById('profil-avatar');
+        var roleEl = document.getElementById('profil-role');
+        if (nomEl) nomEl.textContent = session.nom;
+        if (avEl)  avEl.textContent  = session.nom.split(' ').map(function(w){ return w[0]; }).join('').substring(0,2).toUpperCase();
+        var rolesLabels = {
+            'superadmin': {'fr':'Super Administrateur','en':'Super Administrator'},
+            'admin':      {'fr':'Administrateur',      'en':'Administrator'},
+            'agent':      {'fr':'Agent',               'en':'Agent'},
+            'auditeur':   {'fr':'Auditeur',            'en':'Auditor'},
+            'observateur':{'fr':'Observateur',         'en':'Observer'}
+        };
+        if (roleEl && rolesLabels[session.role]) {
+            var lg = localStorage.getItem('sidad_langue') || 'fr';
+            roleEl.textContent = rolesLabels[session.role][lg] || session.role;
+        }
+    })();
+
+
+    /* ══ CONTRÔLE D'ACCÈS PAR RÔLE ══ */
+    (function() {
+        var session = JSON.parse(localStorage.getItem('sidad_session') || 'null');
+        if (!session) { window.location.href = 'index.html'; return; }
+
+        var role = session.role || 'agent';
+
+        // Menus visibles par rôle
+        // superadmin/admin : tout
+        // agent/auditeur/observateur : pas Utilisateurs
+        var peutVoirUtilisateurs = ['superadmin', 'admin'].indexOf(role) !== -1;
+
+        // Cacher le menu Utilisateurs si pas autorisé
+        if (!peutVoirUtilisateurs) {
+            var navUtil = document.getElementById('nav-utilisateurs');
+            if (navUtil) navUtil.style.display = 'none';
+        }
+
+        // Bloquer l'accès direct à utilisateurs.html
+        var pageActuelle = window.location.pathname.split('/').pop();
+        if (pageActuelle === 'utilisateurs.html' && !peutVoirUtilisateurs) {
+            window.location.href = 'dashboard.html';
+        }
+    })();
+
+
+
+    /* ══ MENU MOBILE ══ */
+    function toggleMenuMobile() {
+        document.getElementById('overlay-mobile').classList.toggle('actif');
+        document.getElementById('sidebar-mobile').classList.toggle('actif');
+    }
+    function fermerMenuMobile() {
+        document.getElementById('overlay-mobile').classList.remove('actif');
+        document.getElementById('sidebar-mobile').classList.remove('actif');
+    }
+    // Copier la nav dans le menu mobile
+    (function() {
+        var nav = document.querySelector('.sidebar-nav');
+        var profil = document.querySelector('.sidebar-profil');
+        var smNav = document.getElementById('sm-nav');
+        var smProfil = document.getElementById('sm-profil');
+        if (nav && smNav) smNav.appendChild(nav.cloneNode(true));
+        if (profil && smProfil) {
+            smProfil.style.borderTop = '1px solid rgba(255,255,255,0.07)';
+            smProfil.style.marginTop = 'auto';
+            smProfil.appendChild(profil.cloneNode(true));
+        }
+    })();
+
+</script>
+
+</body>
+</html>

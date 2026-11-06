@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIDAD — Page introuvable</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #07080D; --card: #0E1018;
+            --border: rgba(255,255,255,0.07);
+            --texte: #F0F2F8; --muted: #4A5068; --gris: #7B8099;
+            --jaune: #FCD116; --rouge: #CE1126; --vert: #009460;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg); color: var(--texte);
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; overflow: hidden;
+        }
+
+        /* Drapeau */
+        .drapeau { position: fixed; top: 0; left: 0; right: 0; height: 4px; display: flex; z-index: 10; }
+        .drapeau div { flex: 1; }
+
+        /* Halos */
+        body::before {
+            content: ''; position: fixed;
+            top: -20%; left: -10%; width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(206,17,38,0.07), transparent 65%);
+        }
+        body::after {
+            content: ''; position: fixed;
+            bottom: -10%; right: -5%; width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(0,148,96,0.07), transparent 65%);
+        }
+
+        .carte {
+            position: relative; z-index: 1;
+            text-align: center;
+            padding: 60px 48px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            max-width: 480px; width: 90%;
+            animation: apparait 0.5s ease both;
+        }
+        @keyframes apparait {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-wrap {
+            width: 60px; height: 60px;
+            background: linear-gradient(135deg, #FCD116, #c9900a);
+            border-radius: 14px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 26px; margin-bottom: 24px;
+            box-shadow: 0 0 30px rgba(252,209,22,0.25);
+        }
+
+        .code-404 {
+            font-family: 'Syne', sans-serif;
+            font-size: 96px; font-weight: 800;
+            line-height: 1; letter-spacing: -4px;
+            background: linear-gradient(135deg, var(--rouge), var(--jaune), var(--vert));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .titre {
+            font-family: 'Syne', sans-serif;
+            font-size: 20px; font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .desc {
+            font-size: 14px; color: var(--gris);
+            line-height: 1.7; margin-bottom: 32px;
+        }
+
+        .boutons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+        .btn-primary {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #FCD116, #c9900a);
+            color: #07080D; border: none; border-radius: 10px;
+            font-size: 14px; font-weight: 700;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer; transition: all 0.2s; text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(252,209,22,0.3); }
+
+        .btn-secondary {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            color: var(--gris); border-radius: 10px;
+            font-size: 14px; font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer; transition: all 0.2s; text-decoration: none;
+            display: inline-block;
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.07); color: var(--texte); }
+
+        .pied {
+            margin-top: 32px; padding-top: 20px;
+            border-top: 1px solid var(--border);
+            font-size: 11px; color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="drapeau">
+        <div style="background:#CE1126"></div>
+        <div style="background:#FCD116"></div>
+        <div style="background:#009460"></div>
+    </div>
+
+    <div class="carte">
+        <div class="logo-wrap">🛡️</div>
+        <div class="code-404">404</div>
+        <div class="titre" id="txt-titre">Page introuvable</div>
+        <div class="desc" id="txt-desc">
+            La page que vous cherchez n'existe pas ou a été déplacée.<br>
+            Vérifiez l'URL ou retournez au tableau de bord.
+        </div>
+        <div class="boutons">
+            <a href="dashboard.html" class="btn-primary" id="btn-dash">📊 Tableau de bord</a>
+            <a href="index.html"     class="btn-secondary" id="btn-login">🔐 Connexion</a>
+        </div>
+        <div class="pied">SIDAD v1.0 · République de Guinée</div>
+    </div>
+
+<script>
+    // Appliquer le thème sauvegardé
+    (function() {
+        var themes = { 'blanc':'theme-blanc', 'bleu':'theme-bleu', 'bleu-clair':'theme-bleu-clair', 'vert-fonce':'theme-vert-fonce' };
+        var t = localStorage.getItem('sidad_theme');
+        if (t && themes[t]) document.body.classList.add(themes[t]);
+
+        // Langue
+        var lg = localStorage.getItem('sidad_langue') || 'fr';
+        if (lg === 'en') {
+            document.getElementById('txt-titre').textContent = 'Page not found';
+            document.getElementById('txt-desc').innerHTML = "The page you are looking for doesn't exist or has been moved.<br>Check the URL or go back to the dashboard.";
+            document.getElementById('btn-dash').textContent = '📊 Dashboard';
+            document.getElementById('btn-login').textContent = '🔐 Sign in';
+        }
+    })();
+</script>
+
+</body>
+</html>

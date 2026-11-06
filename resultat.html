@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIDAD — Résultat de l'Analyse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --rouge:   #CE1126;
+            --jaune:   #FCD116;
+            --vert:    #009460;
+            --bg:      #07080D;
+            --card:    #0E1018;
+            --surface: #141720;
+            --border:  rgba(255,255,255,0.07);
+            --texte:   #F0F2F8;
+            --muted:   #4A5068;
+            --gris:    #7B8099;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--texte);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ══════════════════════════════
+           SIDEBAR
+        ══════════════════════════════ */
+        .sidebar {
+            width: 240px;
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            flex-shrink: 0;
+        }
+        .sidebar-logo {
+            padding: 28px 20px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo-icon {
+            width: 42px; height: 42px;
+            background: linear-gradient(135deg, #FCD116, #c9900a);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 0 20px rgba(252,209,22,0.3);
+            flex-shrink: 0;
+        }
+        .logo-nom { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; }
+        .logo-pays { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+
+        .sidebar-nav {
+            flex: 1; padding: 20px 12px;
+            display: flex; flex-direction: column; gap: 2px;
+        }
+        .nav-section {
+            font-size: 10px; font-weight: 600; letter-spacing: 1.5px;
+            text-transform: uppercase; color: var(--muted); padding: 12px 10px 6px;
+        }
+        .nav-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px; border-radius: 8px; cursor: pointer;
+            transition: all 0.2s; color: var(--gris); font-size: 13.5px;
+            border: 1px solid transparent; text-decoration: none;
+        }
+        .nav-item:hover { background: var(--surface); color: var(--texte); }
+        .nav-item.actif {
+            background: rgba(252,209,22,0.1);
+            border-color: rgba(252,209,22,0.25);
+            color: var(--jaune);
+        }
+        .nav-icone { font-size: 16px; width: 20px; text-align: center; }
+
+        .sidebar-profil {
+            padding: 14px 12px 20px;
+            border-top: 1px solid var(--border);
+        }
+        .profil-carte {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px; background: var(--surface); border-radius: 8px;
+        }
+        .profil-avatar {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700; flex-shrink: 0;
+        }
+        .profil-nom { font-size: 13px; font-weight: 500; }
+        .profil-role { font-size: 11px; color: var(--muted); }
+
+        /* ══════════════════════════════
+           CONTENU PRINCIPAL
+        ══════════════════════════════ */
+        .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+        .topbar {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 0 28px; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .topbar-titre { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; }
+        .topbar-sous   { font-size: 12px; color: var(--muted); margin-top: 2px; }
+        .topbar-droite { display: flex; align-items: center; gap: 10px; }
+
+        .lang-toggle {
+            display: flex; background: var(--surface);
+            border: 1px solid var(--border); border-radius: 7px; overflow: hidden;
+        }
+        .lang-btn {
+            padding: 6px 16px; font-size: 11px; font-weight: 700;
+            font-family: 'DM Sans', sans-serif; letter-spacing: 0.5px;
+            cursor: pointer; border: none; background: none;
+            color: var(--gris); transition: all 0.2s;
+        }
+        .lang-btn.actif { background: var(--jaune); color: var(--bg); }
+
+        .contenu {
+            flex: 1; overflow-y: auto; padding: 28px;
+            display: flex; flex-direction: column; gap: 20px;
+        }
+
+        /* ══════════════════════════════
+           CARTE VERDICT PRINCIPAL
+        ══════════════════════════════ */
+        .verdict-carte {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 32px;
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            border: 2px solid;
+            animation: apparait 0.6s ease both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Couleurs selon verdict */
+        .verdict-carte.authentique {
+            border-color: rgba(0,148,96,0.4);
+            background: linear-gradient(135deg, rgba(0,148,96,0.08), var(--card));
+        }
+        .verdict-carte.falsifie {
+            border-color: rgba(206,17,38,0.4);
+            background: linear-gradient(135deg, rgba(206,17,38,0.08), var(--card));
+        }
+        .verdict-carte.revision {
+            border-color: rgba(252,209,22,0.4);
+            background: linear-gradient(135deg, rgba(252,209,22,0.08), var(--card));
+        }
+
+        @keyframes apparait {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cercle score */
+        .score-cercle {
+            position: relative;
+            width: 130px; height: 130px;
+            flex-shrink: 0;
+        }
+        .score-svg { transform: rotate(-90deg); }
+        .score-piste {
+            fill: none;
+            stroke: var(--surface);
+            stroke-width: 10;
+        }
+        .score-arc {
+            fill: none;
+            stroke-width: 10;
+            stroke-linecap: round;
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            transition: stroke-dashoffset 1.5s cubic-bezier(0.16,1,0.3,1);
+        }
+        .score-texte {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .score-num {
+            font-family: 'Syne', sans-serif;
+            font-size: 30px; font-weight: 800;
+            line-height: 1;
+        }
+        .score-lbl { font-size: 10px; color: var(--gris); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Infos verdict */
+        .verdict-info { flex: 1; }
+        .verdict-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .verdict-badge.authentique { background: rgba(0,148,96,0.15);  color: var(--vert);  border: 1px solid rgba(0,148,96,0.3); }
+        .verdict-badge.falsifie    { background: rgba(206,17,38,0.15); color: var(--rouge); border: 1px solid rgba(206,17,38,0.3); }
+        .verdict-badge.revision    { background: rgba(252,209,22,0.15);color: var(--jaune); border: 1px solid rgba(252,209,22,0.3); }
+
+        .verdict-titre {
+            font-family: 'Syne', sans-serif;
+            font-size: 22px; font-weight: 800;
+            margin-bottom: 6px;
+        }
+        .verdict-desc { font-size: 13px; color: var(--gris); line-height: 1.6; max-width: 500px; }
+
+        /* Infos document */
+        .verdict-meta {
+            display: flex;
+            gap: 20px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        .meta-item { display: flex; flex-direction: column; gap: 2px; }
+        .meta-cle  { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .meta-val  { font-size: 13px; font-weight: 600; color: var(--texte); }
+
+        /* ══════════════════════════════
+           GRILLE DÉTAILS
+        ══════════════════════════════ */
+        .details-grille {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .detail-carte {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            animation: apparait 0.5s ease 0.15s both;
+        }
+
+        .detail-entete {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            font-family: 'Syne', sans-serif;
+            font-size: 13px; font-weight: 700;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        /* Lignes d'analyse */
+        .analyse-ligne {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 13px 20px;
+            border-bottom: 1px solid var(--border);
+            gap: 12px;
+        }
+        .analyse-ligne:last-child { border-bottom: none; }
+
+        .analyse-nom {
+            font-size: 13px; color: var(--gris); flex: 1;
+        }
+
+        .analyse-barre-wrap {
+            width: 100px;
+            height: 5px;
+            background: var(--surface);
+            border-radius: 10px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .analyse-barre {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1.2s cubic-bezier(0.16,1,0.3,1);
+            width: 0%;
+        }
+
+        .analyse-pct {
+            font-size: 12px; font-weight: 700;
+            min-width: 36px; text-align: right;
+        }
+
+        .analyse-statut {
+            font-size: 11px; font-weight: 600;
+            padding: 3px 9px; border-radius: 20px;
+        }
+        .statut-ok      { background: rgba(0,148,96,0.12);  color: var(--vert);  }
+        .statut-alerte  { background: rgba(206,17,38,0.12); color: var(--rouge); }
+        .statut-moyen   { background: rgba(252,209,22,0.12);color: var(--jaune); }
+
+        /* ══════════════════════════════
+           BOUTONS BAS DE PAGE
+        ══════════════════════════════ */
+        .actions-bas {
+            display: flex;
+            gap: 12px;
+            animation: apparait 0.5s ease 0.3s both;
+        }
+
+        .btn-primaire {
+            flex: 1;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--jaune), #c9900a);
+            color: var(--bg);
+            border: none; border-radius: 10px;
+            font-size: 14px; font-weight: 700;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-primaire:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(252,209,22,0.3); }
+
+        .btn-secondaire {
+            flex: 1;
+            padding: 14px;
+            background: var(--surface);
+            color: var(--texte);
+            border: 1px solid var(--border); border-radius: 10px;
+            font-size: 14px; font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-secondaire:hover { border-color: rgba(255,255,255,0.2); background: var(--card); }
+
+
+        /* ── Thèmes globaux ── */
+        body.theme-blanc { --bg:#F0F2F8; --card:#FFFFFF; --surface:#E8EAF0; --border:rgba(0,0,0,0.08); --texte:#1A1D2E; --muted:#8890A8; --gris:#6B7490; }
+        body.theme-bleu  { --bg:#0A1628; --card:#0F1E3A; --surface:#162440; --border:rgba(255,255,255,0.08); --texte:#E0E8FF; --muted:#3A5080; --gris:#5A78A8; }
+        body.theme-bleu-clair { --bg:#1E3A5F; --card:#24456E; --surface:#2A5080; --border:rgba(255,255,255,0.1); --texte:#E8F0FF; --muted:#4A7AB0; --gris:#6A98C8; }
+        body.theme-vert-fonce { --bg:#0A1A0F; --card:#0F2414; --surface:#142E18; --border:rgba(0,148,96,0.15); --texte:#D0F0DC; --muted:#2A5A34; --gris:#4A8A58; }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+    
+        .btn-deconnexion {
+            width: 100%;
+            margin-top: 8px;
+            padding: 9px 12px;
+            background: rgba(206,17,38,0.08);
+            border: 1px solid rgba(206,17,38,0.2);
+            border-radius: 8px;
+            color: #f87171;
+            font-size: 12.5px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .btn-deconnexion:hover {
+            background: rgba(206,17,38,0.15);
+            border-color: rgba(206,17,38,0.4);
+        }
+        
+        /* ══ RESPONSIVE MOBILE ══ */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 12px;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                position: relative;
+                z-index: 100;
+            }
+            .sidebar-logo { padding: 12px 8px; border-bottom: none; }
+            .logo-pays { display: none; }
+            .sidebar-nav { display: none; }
+            .sidebar-profil { display: none; }
+
+            /* Menu hamburger */
+            .hamburger {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                cursor: pointer;
+                padding: 10px;
+            }
+            .hamburger span {
+                width: 22px; height: 2px;
+                background: var(--gris);
+                border-radius: 2px;
+                transition: all 0.3s;
+            }
+
+            /* Menu mobile overlay */
+            .menu-mobile {
+                display: none;
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.7);
+                z-index: 200;
+            }
+            .menu-mobile.ouvert { display: block; }
+            .menu-mobile-inner {
+                width: 260px;
+                height: 100%;
+                background: var(--card);
+                border-right: 1px solid var(--border);
+                padding: 20px 12px;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                overflow-y: auto;
+            }
+            .menu-mobile-close {
+                align-self: flex-end;
+                background: none; border: none;
+                color: var(--gris); font-size: 20px;
+                cursor: pointer; margin-bottom: 12px;
+            }
+
+            .main { flex: 1; overflow: auto; }
+            .topbar { padding: 0 16px; height: 56px; }
+            .topbar-titre { font-size: 15px; }
+            .topbar-date { display: none; }
+            .contenu { padding: 16px; gap: 16px; }
+
+            /* Grilles responsive */
+            .stats-grille { grid-template-columns: 1fr; }
+            .info-grille  { grid-template-columns: 1fr; }
+            .seuils-grid  { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            .topbar-droite { gap: 6px; }
+            .systeme-actif { padding: 5px 8px; font-size: 11px; }
+            .lang-btn { padding: 5px 12px; }
+        }
+
+        
+        /* ══ BOUTON HAMBURGER ══ */
+        .btn-hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 10px;
+            cursor: pointer;
+        }
+        .btn-hamburger span {
+            width: 20px; height: 2px;
+            background: var(--gris);
+            border-radius: 2px;
+            display: block;
+            transition: all 0.3s;
+        }
+        @media (max-width: 768px) {
+            .btn-hamburger { display: flex; }
+        }
+
+        /* ══ SIDEBAR MOBILE ══ */
+        .overlay-mobile {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 300;
+        }
+        .overlay-mobile.actif { display: block; }
+
+        .sidebar-mobile {
+            position: fixed;
+            top: 0; left: 0;
+            width: 260px; height: 100%;
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            z-index: 301;
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+            display: flex; flex-direction: column;
+            overflow-y: auto;
+        }
+        .sidebar-mobile.actif { transform: translateX(0); }
+
+        .sm-header {
+            display: flex; align-items: center;
+            justify-content: space-between;
+            padding: 20px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        </style>
+</head>
+<body>
+<script>
+    /* ── Appliquer le thème sauvegardé ── */
+    (function() {
+        const themes = { 'blanc':'theme-blanc', 'bleu':'theme-bleu', 'bleu-clair':'theme-bleu-clair', 'vert-fonce':'theme-vert-fonce' };
+        const t = localStorage.getItem('sidad_theme');
+        if (t && themes[t]) document.body.classList.add(themes[t]);
+    })();
+</script>
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon">🛡️</div>
+        <div>
+            <div class="logo-nom">SIDAD</div>
+            <div class="logo-pays" id="sb-pays">République de Guinée</div>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section" id="nav-s1">Principal</div>
+        <a class="nav-item" href="dashboard.html">
+            <span class="nav-icone">📊</span>
+            <span id="nav-dashboard">Tableau de Bord</span>
+        </a>
+        <a class="nav-item actif" href="analyser.html">
+            <span class="nav-icone">🔍</span>
+            <span id="nav-analyser">Analyser</span>
+        </a>
+        <a class="nav-item" href="historique.html">
+            <span class="nav-icone">📋</span>
+            <span id="nav-historique">Historique</span>
+        </a>
+        <a class="nav-item" href="utilisateurs.html">
+            <span class="nav-icone">👥</span>
+            <span id="nav-utilisateurs">Utilisateurs</span>
+        </a>
+        <a class="nav-item" href="parametres.html">
+            <span class="nav-icone">⚙️</span>
+            <span id="nav-parametres">Paramètres</span>
+        </a>
+    </nav>
+    <div class="sidebar-profil">
+        <div class="profil-carte">
+            <div class="profil-avatar" id="profil-avatar">YN</div>
+            <div>
+                <div class="profil-nom" id="profil-nom">Yves Ninamou</div>
+                <div class="profil-role" id="profil-role">Administrateur</div>
+            </div>
+        </div>
+        <button class="btn-deconnexion" onclick="seDeconnecter()" id="btn-deco">
+            <span>🚪</span>
+            <span id="lbl-deco">Se déconnecter</span>
+        </button>
+    </div>
+</aside>
+
+<!-- ═══════════ CONTENU PRINCIPAL ═══════════ -->
+<!-- ═══ MENU MOBILE ═══ -->
+<div class="overlay-mobile" id="overlay-mobile" onclick="fermerMenuMobile()"></div>
+<div class="sidebar-mobile" id="sidebar-mobile">
+    <div class="sm-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:36px;height:36px;background:linear-gradient(135deg,#FCD116,#c9900a);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;">🛡️</div>
+            <span style="font-family:Syne,sans-serif;font-weight:800;font-size:16px;">SIDAD</span>
+        </div>
+        <button onclick="fermerMenuMobile()" style="background:none;border:none;color:var(--gris);font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div id="sm-nav"></div>
+    <div id="sm-profil"></div>
+</div>
+<div class="main">
+
+    <header class="topbar">
+        <div>
+            <div class="topbar-titre" id="top-titre">Résultat de l'Analyse</div>
+            <div class="topbar-sous"  id="top-sous">Rapport généré le <span id="top-date"></span></div>
+        </div>
+        <div class="topbar-droite">
+            <!-- Bouton hamburger mobile -->
+            <button class="btn-hamburger" id="btn-hamburger" onclick="toggleMenuMobile()" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="lang-toggle">
+                <button class="lang-btn actif" id="btn-fr" onclick="changerLangue('fr')">FR</button>
+                <button class="lang-btn"       id="btn-en" onclick="changerLangue('en')">EN</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="contenu">
+
+        <!-- ── Verdict Principal ── -->
+        <div class="verdict-carte authentique" id="verdict-carte">
+
+            <!-- Cercle score -->
+            <div class="score-cercle">
+                <svg class="score-svg" width="130" height="130" viewBox="0 0 130 130">
+                    <circle class="score-piste" cx="65" cy="65" r="45"/>
+                    <circle class="score-arc" id="score-arc" cx="65" cy="65" r="45" stroke="#009460"/>
+                </svg>
+                <div class="score-texte">
+                    <div class="score-num" id="score-num">0%</div>
+                    <div class="score-lbl" id="score-lbl">Score</div>
+                </div>
+            </div>
+
+            <!-- Infos -->
+            <div class="verdict-info">
+                <div class="verdict-badge authentique" id="verdict-badge">✅ Authentique</div>
+                <div class="verdict-titre" id="verdict-titre">Document Authentique</div>
+                <div class="verdict-desc"  id="verdict-desc">
+                    Ce document présente toutes les caractéristiques d'un document officiel authentique. Aucune anomalie majeure n'a été détectée.
+                </div>
+                <div class="verdict-meta">
+                    <div class="meta-item">
+                        <span class="meta-cle" id="meta-k1">Type</span>
+                        <span class="meta-val" id="meta-v1">Diplôme / Attestation</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-cle" id="meta-k2">Fichier</span>
+                        <span class="meta-val" id="meta-v2">document.pdf</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-cle" id="meta-k3">Durée</span>
+                        <span class="meta-val" id="meta-v3">2.4 secondes</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-cle" id="meta-k4">Référence</span>
+                        <span class="meta-val" id="meta-v4">—</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Détails de l'analyse ── -->
+        <div class="details-grille">
+
+            <!-- Zones analysées -->
+            <div class="detail-carte">
+                <div class="detail-entete">🔬 <span id="det1-titre">Zones Analysées</span></div>
+
+                <div class="analyse-ligne">
+                    <span class="analyse-nom" id="z1-nom">Signature officielle</span>
+                    <div class="analyse-barre-wrap">
+                        <div class="analyse-barre" id="z1-barre" style="background: var(--vert)"></div>
+                    </div>
+                    <span class="analyse-pct" id="z1-pct" style="color: var(--vert)">95%</span>
+                    <span class="analyse-statut statut-ok" id="z1-stat">✓ OK</span>
+                </div>
+
+                <div class="analyse-ligne">
+                    <span class="analyse-nom" id="z2-nom">Sceau / Tampon</span>
+                    <div class="analyse-barre-wrap">
+                        <div class="analyse-barre" id="z2-barre" style="background: var(--vert)"></div>
+                    </div>
+                    <span class="analyse-pct" id="z2-pct" style="color: var(--vert)">88%</span>
+                    <span class="analyse-statut statut-ok" id="z2-stat">✓ OK</span>
+                </div>
+
+                <div class="analyse-ligne">
+                    <span class="analyse-nom" id="z3-nom">Typographie du texte</span>
+                    <div class="analyse-barre-wrap">
+                        <div class="analyse-barre" id="z3-barre" style="background: var(--vert)"></div>
+                    </div>
+                    <span class="analyse-pct" id="z3-pct" style="color: var(--vert)">92%</span>
+                    <span class="analyse-statut statut-ok" id="z3-stat">✓ OK</span>
+                </div>
+
+                <div class="analyse-ligne">
+                    <span class="analyse-nom" id="z4-nom">Numéro de série</span>
+                    <div class="analyse-barre-wrap">
+                        <div class="analyse-barre" id="z4-barre" style="background: var(--vert)"></div>
+                    </div>
+                    <span class="analyse-pct" id="z4-pct" style="color: var(--vert)">97%</span>
+                    <span class="analyse-statut statut-ok" id="z4-stat">✓ OK</span>
+                </div>
+
+                <div class="analyse-ligne">
+                    <span class="analyse-nom" id="z5-nom">Métadonnées image</span>
+                    <div class="analyse-barre-wrap">
+                        <div class="analyse-barre" id="z5-barre" style="background: var(--vert)"></div>
+                    </div>
+                    <span class="analyse-pct" id="z5-pct" style="color: var(--vert)">90%</span>
+                    <span class="analyse-statut statut-ok" id="z5-stat">✓ OK</span>
+                </div>
+
+            </div>
+
+            <!-- Résumé technique -->
+            <div class="detail-carte">
+                <div class="detail-entete">📊 <span id="det2-titre">Résumé Technique</span></div>
+
+                <div class="analyse-ligne">
+                    <span class="analyse-nom" id="r1-nom">Cohérence visuelle</span>
+                    <div class="analyse-barre-wrap">
+                        <div class="analyse-barre" id="r1-barre" style="background: var(--vert)"></div>
+                    </div>
+                    <span class="analyse-pct" id="r1-pct" style="color: var(--vert)">93%</span>
+                </div>
+
+                <div class="analyse-ligne">
+                    <span class="analyse-nom" id="r2-nom">Détection de retouche</span>
+                    <div class="analyse-barre-wrap">
+                        <div class="analyse-barre" id="r2-barre" style="background: var(--vert)"></div>
+                    </div>
+                    <span class="analyse-pct" id="r2-pct" style="color: var(--vert)">96%</span>
+                </div>
+
+                <div class="analyse-ligne">
+                    <span class="analyse-nom" id="r3-nom">Conformité du format</span>
+                    <div class="analyse-barre-wrap">
+                        <div class="analyse-barre" id="r3-barre" style="background: var(--vert)"></div>
+                    </div>
+                    <span class="analyse-pct" id="r3-pct" style="color: var(--vert)">89%</span>
+                </div>
+
+                <div class="analyse-ligne">
+                    <span class="analyse-nom" id="r4-nom">Analyse des pixels</span>
+                    <div class="analyse-barre-wrap">
+                        <div class="analyse-barre" id="r4-barre" style="background: var(--vert)"></div>
+                    </div>
+                    <span class="analyse-pct" id="r4-pct" style="color: var(--vert)">91%</span>
+                </div>
+
+                <div class="analyse-ligne">
+                    <span class="analyse-nom" id="r5-nom">Score global IA</span>
+                    <div class="analyse-barre-wrap">
+                        <div class="analyse-barre" id="r5-barre" style="background: var(--vert)"></div>
+                    </div>
+                    <span class="analyse-pct" id="r5-pct" style="color: var(--vert)">92%</span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ── Boutons d'action ── -->
+        <div class="actions-bas">
+            <button class="btn-primaire" id="btn-rapport" onclick="telechargerRapport()">
+                📥 Télécharger le rapport PDF
+            </button>
+            <button class="btn-secondaire" id="btn-nouveau" onclick="window.location.href='analyser.html'">
+                🔍 Analyser un autre document
+            </button>
+            <button class="btn-secondaire" id="btn-dashboard" onclick="window.location.href='dashboard.html'">
+                📊 Retour au tableau de bord
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    /* ══════════════════════════════════════
+       DONNÉES DE DÉMONSTRATION
+       (Plus tard ces données viendront du backend)
+    ══════════════════════════════════════ */
+    const RESULTAT_DEMO = {
+        score:   92,
+        verdict: 'authentique',   // 'authentique' | 'falsifie' | 'revision'
+        type:    'Diplôme / Attestation',
+        fichier: 'document.pdf',
+        duree:   '2.4s',
+        zones: [
+            { id: 'z1', pct: 95 },
+            { id: 'z2', pct: 88 },
+            { id: 'z3', pct: 92 },
+            { id: 'z4', pct: 97 },
+            { id: 'z5', pct: 90 },
+        ],
+        resume: [
+            { id: 'r1', pct: 93 },
+            { id: 'r2', pct: 96 },
+            { id: 'r3', pct: 89 },
+            { id: 'r4', pct: 91 },
+            { id: 'r5', pct: 92 },
+        ]
+    };
+
+    /* ══════════════════════════════════════
+       TRADUCTIONS
+    ══════════════════════════════════════ */
+    const TEXTES = {
+        fr: {
+            'sb-pays':        'République de Guinée',
+            'nav-s1':         'Principal',
+            'nav-s2':         'Administration',
+            'nav-dashboard':  'Tableau de Bord',
+            'nav-analyser':   'Analyser',
+            'nav-historique': 'Historique',
+            'nav-utilisateurs':'Utilisateurs',
+            'nav-parametres': 'Paramètres',
+            'profil-role':    'Administrateur',
+            'top-titre':      "Résultat de l'Analyse",
+            'top-sous-prefix':'Rapport généré le',
+            'score-lbl':      'Score',
+            // Verdicts
+            authentique: {
+                badge:  '✅ Authentique',
+                titre:  'Document Authentique',
+                desc:   "Ce document présente toutes les caractéristiques d'un document officiel authentique. Aucune anomalie majeure n'a été détectée.",
+            },
+            falsifie: {
+                badge:  '🚨 Falsifié',
+                titre:  'Document Falsifié',
+                desc:   "Ce document présente des anomalies significatives. Des zones ont été modifiées ou altérées. Une vérification manuelle est fortement recommandée.",
+            },
+            revision: {
+                badge:  '⚠️ À réviser',
+                titre:  'Révision Manuelle Requise',
+                desc:   "Le score d'authenticité est incertain. Certaines zones présentent des irrégularités légères. Une vérification humaine est recommandée.",
+            },
+            'meta-k1': 'Type',
+            'meta-k2': 'Fichier',
+            'meta-k3': 'Durée',
+            'meta-k4': 'Référence',
+            'meta-v3-suffix': ' secondes',
+            'det1-titre': 'Zones Analysées',
+            'det2-titre': 'Résumé Technique',
+            'z1-nom': 'Signature officielle',
+            'z2-nom': 'Sceau / Tampon',
+            'z3-nom': 'Typographie du texte',
+            'z4-nom': 'Numéro de série',
+            'z5-nom': 'Métadonnées image',
+            'r1-nom': 'Cohérence visuelle',
+            'r2-nom': 'Détection de retouche',
+            'r3-nom': 'Conformité du format',
+            'r4-nom': "Analyse des pixels",
+            'r5-nom': 'Score global IA',
+            'statut-ok':     '✓ OK',
+            'statut-alerte': '✗ Alerte',
+            'statut-moyen':  '⚠ Moyen',
+            'btn-rapport':   '📥 Télécharger le rapport PDF',
+            'btn-nouveau':   '🔍 Analyser un autre document',
+            'btn-dashboard': '📊 Retour au tableau de bord',
+            'lbl-deco': 'Se déconnecter',
+        },
+        en: {
+            'sb-pays':        'Republic of Guinea',
+            'nav-s1':         'Main',
+            'nav-s2':         'Administration',
+            'nav-dashboard':  'Dashboard',
+            'nav-analyser':   'Analyse',
+            'nav-historique': 'History',
+            'nav-utilisateurs':'Users',
+            'nav-parametres': 'Settings',
+            'profil-role':    'Administrator',
+            'top-titre':      'Analysis Result',
+            'top-sous-prefix':'Report generated on',
+            'score-lbl':      'Score',
+            authentique: {
+                badge:  '✅ Authentic',
+                titre:  'Authentic Document',
+                desc:   'This document shows all the characteristics of an authentic official document. No major anomaly was detected.',
+            },
+            falsifie: {
+                badge:  '🚨 Forged',
+                titre:  'Forged Document',
+                desc:   'This document shows significant anomalies. Some areas have been modified or altered. Manual verification is strongly recommended.',
+            },
+            revision: {
+                badge:  '⚠️ To Review',
+                titre:  'Manual Review Required',
+                desc:   'The authenticity score is uncertain. Some areas show slight irregularities. Human verification is recommended.',
+            },
+            'meta-k1': 'Type',
+            'meta-k2': 'File',
+            'meta-k3': 'Duration',
+            'meta-k4': 'Reference',
+            'meta-v3-suffix': ' seconds',
+            'det1-titre': 'Analysed Areas',
+            'det2-titre': 'Technical Summary',
+            'z1-nom': 'Official signature',
+            'z2-nom': 'Seal / Stamp',
+            'z3-nom': 'Text typography',
+            'z4-nom': 'Serial number',
+            'z5-nom': 'Image metadata',
+            'r1-nom': 'Visual consistency',
+            'r2-nom': 'Retouching detection',
+            'r3-nom': 'Format compliance',
+            'r4-nom': 'Pixel analysis',
+            'r5-nom': 'Global AI score',
+            'statut-ok':     '✓ OK',
+            'statut-alerte': '✗ Alert',
+            'statut-moyen':  '⚠ Medium',
+            'btn-rapport':   '📥 Download PDF report',
+            'btn-nouveau':   '🔍 Analyse another document',
+            'btn-dashboard': '📊 Back to dashboard',
+            'lbl-deco': 'Sign out',
+        }
+    };
+
+    let langue = 'fr';
+
+    /* ══════════════════════════════════════
+       COULEUR SELON SCORE
+    ══════════════════════════════════════ */
+    function couleurScore(pct) {
+        if (pct >= 70) return 'var(--vert)';
+        if (pct >= 40) return 'var(--jaune)';
+        return 'var(--rouge)';
+    }
+    function statutScore(pct, langue) {
+        const t = TEXTES[langue];
+        if (pct >= 70) return { texte: t['statut-ok'],     classe: 'statut-ok' };
+        if (pct >= 40) return { texte: t['statut-moyen'],  classe: 'statut-moyen' };
+        return              { texte: t['statut-alerte'], classe: 'statut-alerte' };
+    }
+
+    /* ══════════════════════════════════════
+       AFFICHER LE RÉSULTAT
+    ══════════════════════════════════════ */
+    /* ══════════════════════════════════════
+       GÉNÉRER ZONES SELON LE SCORE RÉEL
+    ══════════════════════════════════════ */
+    function genererZones(score) {
+        const s = Math.round(score);
+        const deltas = [3, -4, 1, 5, -2];
+        return [
+            { id: 'z1', pct: Math.min(99, Math.max(5, s + deltas[0])) },
+            { id: 'z2', pct: Math.min(99, Math.max(5, s + deltas[1])) },
+            { id: 'z3', pct: Math.min(99, Math.max(5, s + deltas[2])) },
+            { id: 'z4', pct: Math.min(99, Math.max(5, s + deltas[3])) },
+            { id: 'z5', pct: Math.min(99, Math.max(5, s + deltas[4])) },
+        ];
+    }
+
+    function genererResume(score) {
+        const s = Math.round(score);
+        const deltas = [-2, 4, -3, 2, 1];
+        return [
+            { id: 'r1', pct: Math.min(99, Math.max(5, s + deltas[0])) },
+            { id: 'r2', pct: Math.min(99, Math.max(5, s + deltas[1])) },
+            { id: 'r3', pct: Math.min(99, Math.max(5, s + deltas[2])) },
+            { id: 'r4', pct: Math.min(99, Math.max(5, s + deltas[3])) },
+            { id: 'r5', pct: Math.min(99, Math.max(5, s + deltas[4])) },
+        ];
+    }
+
+    function afficherResultat() {
+        // Charger les vraies données depuis localStorage
+        const saved = localStorage.getItem('sidad_resultat');
+        const real  = saved ? JSON.parse(saved) : null;
+
+        const r = {
+            score:   real ? real.score   : RESULTAT_DEMO.score,
+            verdict: real ? real.verdict : RESULTAT_DEMO.verdict,
+            type:    real ? real.type    : RESULTAT_DEMO.type,
+            fichier: real ? real.fichier : RESULTAT_DEMO.fichier,
+            duree:   real ? '—'          : RESULTAT_DEMO.duree,
+            zones:   genererZones(real ? real.score : RESULTAT_DEMO.score),
+            resume:  genererResume(real ? real.score : RESULTAT_DEMO.score),
+        };
+        const t = TEXTES[langue];
+        const v = t[r.verdict];
+
+        // Carte verdict
+        const carte = document.getElementById('verdict-carte');
+        carte.className = 'verdict-carte ' + r.verdict;
+
+        // Badge et texte
+        document.getElementById('verdict-badge').className = 'verdict-badge ' + r.verdict;
+        document.getElementById('verdict-badge').textContent = v.badge;
+        document.getElementById('verdict-titre').textContent = v.titre;
+        document.getElementById('verdict-desc').textContent  = v.desc;
+
+        // Métadonnées
+        document.getElementById('meta-v1').textContent = r.type;
+        document.getElementById('meta-v2').textContent = r.fichier;
+        document.getElementById('meta-v3').textContent = r.duree;
+
+        // Score cercle animé
+        const arc    = document.getElementById('score-arc');
+        const circonf = 2 * Math.PI * 45;
+        const couleur = couleurScore(r.score);
+        arc.setAttribute('stroke', couleur.replace('var(--vert)', '#009460').replace('var(--jaune)', '#FCD116').replace('var(--rouge)', '#CE1126'));
+
+        setTimeout(() => {
+            const offset = circonf - (r.score / 100) * circonf;
+            arc.style.strokeDashoffset = offset;
+        }, 300);
+
+        // Compter le score
+        let compteur = 0;
+        const intervalle = setInterval(() => {
+            compteur += 2;
+            if (compteur >= r.score) { compteur = r.score; clearInterval(intervalle); }
+            document.getElementById('score-num').textContent = compteur + '%';
+            document.getElementById('score-num').style.color = couleur;
+        }, 20);
+
+        // Barres zones
+        setTimeout(() => {
+            r.zones.forEach(z => {
+                const c = couleurScore(z.pct);
+                document.getElementById(z.id + '-barre').style.width = z.pct + '%';
+                document.getElementById(z.id + '-barre').style.background = c;
+                document.getElementById(z.id + '-pct').textContent = z.pct + '%';
+                document.getElementById(z.id + '-pct').style.color = c;
+                const s = statutScore(z.pct, langue);
+                document.getElementById(z.id + '-stat').textContent = s.texte;
+                document.getElementById(z.id + '-stat').className   = 'analyse-statut ' + s.classe;
+            });
+            r.resume.forEach(rr => {
+                const c = couleurScore(rr.pct);
+                document.getElementById(rr.id + '-barre').style.width = rr.pct + '%';
+                document.getElementById(rr.id + '-barre').style.background = c;
+                document.getElementById(rr.id + '-pct').textContent = rr.pct + '%';
+                document.getElementById(rr.id + '-pct').style.color = c;
+            });
+        }, 400);
+
+        // Textes statiques
+        for (const [id, val] of Object.entries(t)) {
+            if (typeof val === 'object') continue;
+            if (['top-sous-prefix','meta-v3-suffix','statut-ok','statut-alerte','statut-moyen'].includes(id)) continue;
+            const el = document.getElementById(id);
+            if (el) el.textContent = val;
+        }
+
+        // Date
+        const opts = { day:'numeric', month:'long', year:'numeric' };
+        const locale = langue === 'fr' ? 'fr-GN' : 'en-GB';
+        document.getElementById('top-date').textContent = new Date().toLocaleDateString(locale, opts);
+        document.getElementById('top-sous').innerHTML =
+            t['top-sous-prefix'] + ' <span id="top-date">' + new Date().toLocaleDateString(locale, opts) + '</span>';
+    }
+
+    /* ══════════════════════════════════════
+       CHANGER LA LANGUE
+    ══════════════════════════════════════ */
+    function changerLangue(lng) {
+        langue = lng;
+        localStorage.setItem('sidad_langue', lng);
+        document.getElementById('btn-fr').classList.toggle('actif', lng === 'fr');
+        document.getElementById('btn-en').classList.toggle('actif', lng === 'en');
+        afficherResultat();
+    }
+
+    /* ══════════════════════════════════════
+       TÉLÉCHARGER RAPPORT (simulation)
+    ══════════════════════════════════════ */
+    function telechargerRapport() {
+        const saved = localStorage.getItem('sidad_resultat');
+        const real  = saved ? JSON.parse(saved) : null;
+        if (!real) {
+            alert(langue === 'fr' ? 'Aucun résultat à exporter.' : 'No result to export.');
+            return;
+        }
+
+        // Récupérer la référence affichée
+        const ref = document.getElementById('meta-v4')
+            ? document.getElementById('meta-v4').textContent
+            : '—';
+
+        const session = JSON.parse(localStorage.getItem('sidad_session') || '{}');
+        const now     = new Date();
+
+        // Calculer les zones et résumé (même logique que afficherResultat)
+        const score = Math.round(real.score);
+        const deltas1 = [3, -4, 1, 5, -2];
+        const deltas2 = [-2, 4, -3, 2, 1];
+        const zones  = deltas1.map(d => Math.min(99, Math.max(5, score + d)));
+        const resume = deltas2.map(d => Math.min(99, Math.max(5, score + d)));
+
+        const payload = {
+            fichier:  real.fichier,
+            verdict:  real.verdict,
+            score:    score,
+            type:     real.type || 'Document',
+            ref:      ref,
+            agent:    session.nom || 'Inconnu',
+            date:     now.toLocaleDateString('fr-GN'),
+            heure:    now.toLocaleTimeString('fr-GN', { hour: '2-digit', minute: '2-digit' }),
+            zones:    zones,
+            resume:   resume,
+        };
+
+        // Afficher un indicateur de chargement
+        const btn = document.getElementById('btn-rapport');
+        const labelOriginal = btn.textContent;
+        btn.textContent = langue === 'fr' ? '⏳ Génération en cours...' : '⏳ Generating...';
+        btn.disabled = true;
+
+        fetch('http://127.0.0.1:5000/rapport', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Erreur serveur');
+            return response.blob();
+        })
+        .then(blob => {
+            const url  = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href     = url;
+            link.download = `SIDAD_Rapport_${ref.replace(/-/g,'_')}.pdf`;
+            link.click();
+            URL.revokeObjectURL(url);
+        })
+        .catch(err => {
+            alert(langue === 'fr'
+                ? '❌ Impossible de générer le rapport. Vérifiez que le serveur est actif.'
+                : '❌ Cannot generate report. Check that the server is running.');
+        })
+        .finally(() => {
+            btn.textContent = labelOriginal;
+            btn.disabled    = false;
+        });
+    }
+
+    /* ══════════════════════════════════════
+       INIT
+    ══════════════════════════════════════ */
+    afficherResultat();
+
+    /* Afficher la référence (l'enregistrement est fait une seule fois dans analyser.html) */
+    (function() {
+        const real = JSON.parse(localStorage.getItem('sidad_resultat') || 'null');
+        const refEl = document.getElementById('meta-v4');
+        if (real && real.ref && refEl) refEl.textContent = real.ref;
+    })();
+
+    /* ══ INIT LANGUE ══ */
+    (function() {
+        var lg = localStorage.getItem('sidad_langue');
+        if (lg && lg !== langue) changerLangue(lg);
+    })();
+
+
+    /* ══ DÉCONNEXION ══ */
+    function seDeconnecter() {
+        var msg = langue === 'fr' ? 'Voulez-vous vous déconnecter ?' : 'Do you want to sign out?';
+        if (confirm(msg)) {
+            localStorage.removeItem('sidad_session');
+            window.location.href = 'index.html';
+        }
+    }
+
+    /* ══ CHARGER PROFIL DEPUIS SESSION ══ */
+    (function() {
+        var session = JSON.parse(localStorage.getItem('sidad_session') || 'null');
+        if (!session) return;
+        var nomEl  = document.getElementById('profil-nom');
+        var avEl   = document.getElementById('profil-avatar');
+        var roleEl = document.getElementById('profil-role');
+        if (nomEl) nomEl.textContent = session.nom;
+        if (avEl)  avEl.textContent  = session.nom.split(' ').map(function(w){ return w[0]; }).join('').substring(0,2).toUpperCase();
+        var rolesLabels = {
+            'superadmin': {'fr':'Super Administrateur','en':'Super Administrator'},
+            'admin':      {'fr':'Administrateur',      'en':'Administrator'},
+            'agent':      {'fr':'Agent',               'en':'Agent'},
+            'auditeur':   {'fr':'Auditeur',            'en':'Auditor'},
+            'observateur':{'fr':'Observateur',         'en':'Observer'}
+        };
+        if (roleEl && rolesLabels[session.role]) {
+            var lg = localStorage.getItem('sidad_langue') || 'fr';
+            roleEl.textContent = rolesLabels[session.role][lg] || session.role;
+        }
+    })();
+
+
+    /* ══ CONTRÔLE D'ACCÈS PAR RÔLE ══ */
+    (function() {
+        var session = JSON.parse(localStorage.getItem('sidad_session') || 'null');
+        if (!session) { window.location.href = 'index.html'; return; }
+
+        var role = session.role || 'agent';
+
+        // Menus visibles par rôle
+        // superadmin/admin : tout
+        // agent/auditeur/observateur : pas Utilisateurs
+        var peutVoirUtilisateurs = ['superadmin', 'admin'].indexOf(role) !== -1;
+
+        // Cacher le menu Utilisateurs si pas autorisé
+        if (!peutVoirUtilisateurs) {
+            var navUtil = document.getElementById('nav-utilisateurs');
+            if (navUtil) navUtil.style.display = 'none';
+        }
+
+        // Bloquer l'accès direct à utilisateurs.html
+        var pageActuelle = window.location.pathname.split('/').pop();
+        if (pageActuelle === 'utilisateurs.html' && !peutVoirUtilisateurs) {
+            window.location.href = 'dashboard.html';
+        }
+    })();
+
+
+
+    /* ══ MENU MOBILE ══ */
+    function toggleMenuMobile() {
+        document.getElementById('overlay-mobile').classList.toggle('actif');
+        document.getElementById('sidebar-mobile').classList.toggle('actif');
+    }
+    function fermerMenuMobile() {
+        document.getElementById('overlay-mobile').classList.remove('actif');
+        document.getElementById('sidebar-mobile').classList.remove('actif');
+    }
+    // Copier la nav dans le menu mobile
+    (function() {
+        var nav = document.querySelector('.sidebar-nav');
+        var profil = document.querySelector('.sidebar-profil');
+        var smNav = document.getElementById('sm-nav');
+        var smProfil = document.getElementById('sm-profil');
+        if (nav && smNav) smNav.appendChild(nav.cloneNode(true));
+        if (profil && smProfil) {
+            smProfil.style.borderTop = '1px solid rgba(255,255,255,0.07)';
+            smProfil.style.marginTop = 'auto';
+            smProfil.appendChild(profil.cloneNode(true));
+        }
+    })();
+
+</script>
+
+</body>
+</html>

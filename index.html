@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIDAD — Bienvenue / Welcome</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #07080D;
+            color: white;
+            height: 100vh;
+            display: flex;
+        }
+
+        /* ── GAUCHE : message de bienvenue ── */
+        .left {
+            flex: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 48px;
+            overflow: hidden;
+        }
+
+        /* Bandes du drapeau guinéen en fond */
+        .flag-bg {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            z-index: 0;
+        }
+        .flag-bg div { flex: 1; opacity: 0.13; }
+        .flag-bg .rouge  { background: #CE1126; }
+        .flag-bg .jaune  { background: #FCD116; }
+        .flag-bg .vert   { background: #009460; }
+
+        /* Halo lumineux rouge à gauche */
+        .left::before {
+            content: '';
+            position: absolute;
+            top: 10%; left: -10%;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(206,17,38,0.2), transparent 65%);
+            z-index: 0;
+        }
+        /* Halo vert en bas à droite */
+        .left::after {
+            content: '';
+            position: absolute;
+            bottom: 0; right: 0;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(0,148,96,0.15), transparent 65%);
+            z-index: 0;
+        }
+
+        .left-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: space-between;
+        }
+
+        /* Logo */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .logo-icon {
+            width: 50px; height: 50px;
+            background: linear-gradient(135deg, #FCD116, #c9900a);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 0 28px rgba(252,209,22,0.4);
+        }
+        .logo-nom {
+            font-family: 'Syne', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .logo-pays {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        /* Texte principal */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Mini drapeau */
+        .mini-flag {
+            display: flex;
+            width: 36px; height: 24px;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+        .mini-flag div { flex: 1; }
+
+        .hero-titre {
+            font-family: 'Syne', sans-serif;
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -1.5px;
+        }
+        .hero-titre .ligne1 {
+            color: #FCD116;
+            display: block;
+            animation: monte 0.7s ease 0.1s both;
+        }
+        .hero-titre .ligne2 {
+            color: rgba(255,255,255,0.35);
+            font-size: 0.55em;
+            display: block;
+            margin: 6px 0;
+            letter-spacing: 0;
+            animation: monte 0.7s ease 0.3s both;
+        }
+        .hero-titre .ligne3 {
+            color: white;
+            display: block;
+            animation: monte 0.7s ease 0.5s both;
+        }
+        @keyframes monte {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-desc {
+            font-size: 15px;
+            color: rgba(255,255,255,0.45);
+            line-height: 1.7;
+            max-width: 400px;
+            animation: monte 0.7s ease 0.65s both;
+        }
+        .hero-desc strong { color: rgba(255,255,255,0.75); font-weight: 500; }
+
+        /* Statistiques */
+        .stats {
+            display: flex;
+            gap: 36px;
+            animation: monte 0.7s ease 0.8s both;
+        }
+        .stat-num {
+            font-family: 'Syne', sans-serif;
+            font-size: 30px;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .stat-lbl {
+            font-size: 11px;
+            color: rgba(255,255,255,0.35);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 3px;
+        }
+
+        /* Pied gauche */
+        .left-bas {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .bande-flag {
+            height: 5px;
+            width: 160px;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+        }
+        .bande-flag div { flex: 1; }
+        .copyright { font-size: 11px; color: rgba(255,255,255,0.2); }
+
+        /* ── DROITE : formulaire ── */
+        .right {
+            width: 460px;
+            background: #0E1018;
+            border-left: 1px solid rgba(255,255,255,0.07);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+        }
+        .right::before {
+            content: '';
+            position: absolute;
+            top: -80px; right: -80px;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(252,209,22,0.06), transparent 70%);
+            pointer-events: none;
+        }
+
+        .form-box {
+            width: 100%;
+            max-width: 340px;
+            animation: glisse 0.6s cubic-bezier(0.16,1,0.3,1) 0.3s both;
+        }
+        @keyframes glisse {
+            from { opacity: 0; transform: translateX(24px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ── TOGGLE LANGUE ── */
+        .lang-toggle {
+            display: flex;
+            background: #141720;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px;
+            overflow: hidden;
+            width: fit-content;
+            margin: 0 auto 24px;
+        }
+        .lang-btn {
+            padding: 7px 22px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'DM Sans', sans-serif;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: rgba(255,255,255,0.35);
+            transition: all 0.2s;
+        }
+        .lang-btn.actif {
+            background: #FCD116;
+            color: #07080D;
+        }
+
+        /* Icône connexion */
+        .form-icone {
+            width: 60px; height: 60px;
+            background: rgba(252,209,22,0.1);
+            border: 1px solid rgba(252,209,22,0.25);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 18px;
+        }
+
+        .form-titre {
+            font-family: 'Syne', sans-serif;
+            font-size: 22px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 6px;
+        }
+        .form-sous-titre {
+            font-size: 13px;
+            color: rgba(255,255,255,0.4);
+            text-align: center;
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+
+        /* Champs */
+        .champ {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            margin-bottom: 16px;
+        }
+        .champ label {
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 0.3px;
+        }
+        .champ-input {
+            position: relative;
+        }
+        .champ-input span {
+            position: absolute;
+            left: 13px;
+            top: 50%; transform: translateY(-50%);
+            font-size: 15px;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .champ-input input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            background: #141720;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .champ-input input::placeholder { color: rgba(255,255,255,0.2); }
+        .champ-input input:focus {
+            border-color: rgba(252,209,22,0.5);
+            box-shadow: 0 0 0 3px rgba(252,209,22,0.08);
+        }
+
+        /* Options sous les champs */
+        .options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .souvenir {
+            display: flex; align-items: center; gap: 8px; cursor: pointer;
+            font-size: 12.5px; color: rgba(255,255,255,0.4);
+        }
+        .case {
+            width: 16px; height: 16px;
+            border-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: #141720;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .case.coche { background: #FCD116; border-color: #FCD116; color: #07080D; font-weight: 700; }
+        .oublie {
+            font-size: 12.5px;
+            color: #FCD116;
+            cursor: pointer;
+            opacity: 0.8;
+            background: none; border: none;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .oublie:hover { opacity: 1; }
+
+        /* Message d'erreur */
+        .erreur {
+            background: rgba(206,17,38,0.1);
+            border: 1px solid rgba(206,17,38,0.3);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 12.5px;
+            color: #f87171;
+            margin-bottom: 14px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+        .erreur.visible { display: flex; }
+
+        /* Bouton connexion */
+        .btn-connexion {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #FCD116, #c9900a);
+            color: #07080D;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-connexion:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(252,209,22,0.3);
+        }
+        .btn-connexion:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        /* Pied formulaire */
+        .form-pied {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 11.5px;
+            color: rgba(255,255,255,0.2);
+            line-height: 1.7;
+        }
+        .form-pied a { color: #FCD116; }
+
+        /* ── OVERLAY SUCCÈS ── */
+        .overlay-succes {
+            position: fixed;
+            inset: 0;
+            background: #07080D;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s;
+        }
+        .overlay-succes.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .succes-icone { font-size: 60px; margin-bottom: 16px; }
+        .succes-titre {
+            font-family: 'Syne', sans-serif;
+            font-size: 26px;
+            font-weight: 800;
+            color: #FCD116;
+            margin-bottom: 6px;
+        }
+        .succes-sous { font-size: 14px; color: rgba(255,255,255,0.4); }
+        .barre-progres {
+            width: 200px; height: 3px;
+            background: #141720;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 28px;
+        }
+        .barre-remplissage {
+            height: 100%;
+            width: 0%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #CE1126, #FCD116, #009460);
+            transition: width 1.8s ease;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Overlay succès -->
+<div class="overlay-succes" id="overlay">
+    <div class="succes-icone">✅</div>
+    <div class="succes-titre" id="succes-nom">Bienvenue !</div>
+    <div class="succes-sous" id="succes-sous">Redirection vers le tableau de bord...</div>
+    <div class="barre-progres">
+        <div class="barre-remplissage" id="barre"></div>
+    </div>
+</div>
+
+<!-- Page principale -->
+<div class="left">
+    <div class="flag-bg">
+        <div class="rouge"></div>
+        <div class="jaune"></div>
+        <div class="vert"></div>
+    </div>
+
+    <div class="left-content">
+
+        <!-- Logo -->
+        <div class="logo">
+            <div class="logo-icon">🛡️</div>
+            <div>
+                <div class="logo-nom">SIDAD</div>
+                <div class="logo-pays" id="logo-pays">République de Guinée</div>
+            </div>
+        </div>
+
+        <!-- Texte de bienvenue -->
+        <div class="hero">
+            <div class="mini-flag">
+                <div style="background:#CE1126"></div>
+                <div style="background:#FCD116"></div>
+                <div style="background:#009460"></div>
+            </div>
+
+            <h1 class="hero-titre">
+                <span class="ligne1" id="txt-bienvenue">Bienvenue</span>
+                <span class="ligne2" id="txt-sur">sur l'application de</span>
+                <span class="ligne3" id="txt-app">Détection d'Authenticité<br>Documentaire</span>
+            </h1>
+
+            <p class="hero-desc" id="txt-desc">
+                <strong>SIDAD</strong> analyse et vérifie l'authenticité des documents administratifs guinéens — certificats, diplômes, pièces d'identité et plus encore.
+            </p>
+
+            <!-- Statistiques -->
+            <div class="stats">
+                <div>
+                    <div class="stat-num" id="idx-total" style="color:#CE1126">0</div>
+                    <div class="stat-lbl" id="stat1">Documents analysés</div>
+                </div>
+                <div>
+                    <div class="stat-num" id="idx-precision" style="color:#FCD116">0%</div>
+                    <div class="stat-lbl" id="stat2">Taux de précision</div>
+                </div>
+                <div>
+                    <div class="stat-num" id="idx-fraudes" style="color:#009460">0</div>
+                    <div class="stat-lbl" id="stat3">Fraudes détectées</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bas gauche -->
+        <div class="left-bas">
+            <div class="bande-flag">
+                <div style="background:#CE1126"></div>
+                <div style="background:#FCD116"></div>
+                <div style="background:#009460"></div>
+            </div>
+            <span class="copyright" id="txt-copyright">© 2025 SIDAD · Ministère du Numérique</span>
+        </div>
+
+    </div>
+</div>
+
+<!-- Formulaire de connexion -->
+<div class="right">
+    <div class="form-box">
+
+        <!-- Toggle FR / EN -->
+        <div class="lang-toggle">
+            <button class="lang-btn actif" id="btn-fr" onclick="changerLangue('fr')">FR</button>
+            <button class="lang-btn"       id="btn-en" onclick="changerLangue('en')">EN</button>
+        </div>
+
+        <div class="form-icone">🔐</div>
+        <div class="form-titre"      id="txt-titre">Connexion</div>
+        <div class="form-sous-titre" id="txt-sous-titre">
+            Identifiez-vous pour accéder au système de vérification documentaire
+        </div>
+
+        <form onsubmit="seConnecter(event)">
+
+            <div class="champ">
+                <label id="lbl-email">Adresse email</label>
+                <div class="champ-input">
+                    <span>✉️</span>
+                    <input type="text" id="email" placeholder="admin@sidad.gov.gn" autocomplete="email">
+                </div>
+            </div>
+
+            <div class="champ">
+                <label id="lbl-mdp">Mot de passe</label>
+                <div class="champ-input">
+                    <span>🔒</span>
+                    <input type="password" id="motdepasse" placeholder="••••••••" autocomplete="current-password">
+                </div>
+            </div>
+
+            <div class="options">
+                <div class="souvenir" onclick="basculerSouvenir()">
+                    <div class="case coche" id="case">✓</div>
+                    <span id="lbl-souvenir">Se souvenir de moi</span>
+                </div>
+                <button type="button" class="oublie" id="lbl-oublie" onclick="motDePasseOublie()">Mot de passe oublié ?</button>
+            </div>
+
+            <!-- Message erreur -->
+            <div class="erreur" id="erreur">
+                <span>⚠️</span>
+                <span id="txt-erreur">Email ou mot de passe incorrect.</span>
+            </div>
+
+            <button type="submit" class="btn-connexion" id="btn">
+                Se connecter →
+            </button>
+
+        </form>
+
+        <div class="form-pied" id="txt-pied">
+            SIDAD v1.0 · 2025<br>
+            Problème de connexion ? <a href="mailto:yvesninamou@outlook.com">Contacter l'administrateur</a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    /* ══ STATS DEPUIS HISTORIQUE ══ */
+    (function() {
+        const historique = JSON.parse(localStorage.getItem('sidad_historique') || '[]');
+        const total     = historique.length;
+        const fraudes   = historique.filter(function(h){ return h.verdict === 'falsifie'; }).length;
+        const scores    = historique.map(function(h){ return h.score; }).filter(function(s){ return typeof s === 'number'; });
+        const precision = scores.length > 0
+            ? Math.round(scores.reduce(function(a,b){ return a+b; }, 0) / scores.length * 10) / 10
+            : 0;
+
+        var elTotal = document.getElementById('idx-total');
+        var elPrec  = document.getElementById('idx-precision');
+        var elFraud = document.getElementById('idx-fraudes');
+
+        if (elTotal) elTotal.textContent = total > 0 ? total.toLocaleString('fr-FR') : '0';
+        if (elPrec)  elPrec.textContent  = total > 0 ? precision + '%' : '0%';
+        if (elFraud) elFraud.textContent = fraudes;
+
+        fetch('http://127.0.0.1:5000/stats').then(function(r){ return r.json(); }).then(function(d){
+            if (d.total === undefined) return;
+            if (elTotal) elTotal.textContent = d.total;
+            if (elPrec)  elPrec.textContent  = Math.round(d.precision) + '%';
+            if (elFraud) elFraud.textContent = d.fraudes;
+        }).catch(function(){});
+    })();
+</script>
+<script>
+    /* ══════════════════════════════════════
+       TRADUCTIONS FR / EN
+    ══════════════════════════════════════ */
+    const TEXTES = {
+        fr: {
+            'logo-pays':      'République de Guinée',
+            'txt-bienvenue':  'Bienvenue',
+            'txt-sur':        "sur l'application de",
+            'txt-app':        "Détection d'Authenticité<br>Documentaire",
+            'txt-desc':       "<strong>SIDAD</strong> analyse et vérifie l'authenticité des documents administratifs guinéens — certificats, diplômes, pièces d'identité et plus encore.",
+            'stat1':          'Documents analysés',
+            'stat2':          'Taux de précision',
+            'stat3':          'Fraudes détectées',
+            'txt-copyright':  '© 2025 SIDAD · Ministère du Numérique',
+            'txt-titre':      'Connexion',
+            'txt-sous-titre': 'Identifiez-vous pour accéder au système de vérification documentaire',
+            'lbl-email':      'Adresse email',
+            'lbl-mdp':        'Mot de passe',
+            'lbl-souvenir':   'Se souvenir de moi',
+            'lbl-oublie':     'Mot de passe oublié ?',
+            'btn':            'Se connecter →',
+            'txt-erreur':     'Email ou mot de passe incorrect.',
+            'succes-sous':    'Redirection vers le tableau de bord...',
+            'email-ph':       'agent@ministere.gov.gn',
+        },
+        en: {
+            'logo-pays':      'Republic of Guinea',
+            'txt-bienvenue':  'Welcome',
+            'txt-sur':        'to the',
+            'txt-app':        "Document Authenticity<br>Detection App",
+            'txt-desc':       "<strong>SIDAD</strong> analyses and verifies the authenticity of Guinean administrative documents — certificates, diplomas, ID cards and more.",
+            'stat1':          'Documents analysed',
+            'stat2':          'Accuracy rate',
+            'stat3':          'Forgeries detected',
+            'txt-copyright':  '© 2025 SIDAD · Ministry of Digital Affairs',
+            'txt-titre':      'Sign In',
+            'txt-sous-titre': 'Sign in to access the document verification system',
+            'lbl-email':      'Email address',
+            'lbl-mdp':        'Password',
+            'lbl-souvenir':   'Remember me',
+            'lbl-oublie':     'Forgot password?',
+            'btn':            'Sign in →',
+            'txt-erreur':     'Incorrect email or password.',
+            'succes-sous':    'Redirecting to dashboard...',
+            'email-ph':       'agent@ministry.gov.gn',
+        }
+    };
+
+    let langue = 'fr';
+
+    function changerLangue(lng) {
+        langue = lng;
+        localStorage.setItem('sidad_langue', lng);
+        document.getElementById('btn-fr').classList.toggle('actif', lng === 'fr');
+        document.getElementById('btn-en').classList.toggle('actif', lng === 'en');
+        const t = TEXTES[lng];
+        for (const [id, valeur] of Object.entries(t)) {
+            if (id === 'email-ph') {
+                document.getElementById('email').placeholder = valeur;
+                continue;
+            }
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = valeur;
+        }
+    }
+
+    /* ══ THÈME ══ */
+    (function() {
+        const themes = { 'blanc':'theme-blanc', 'bleu':'theme-bleu', 'bleu-clair':'theme-bleu-clair', 'vert-fonce':'theme-vert-fonce' };
+        const t = localStorage.getItem('sidad_theme');
+        if (t && themes[t]) document.body.classList.add(themes[t]);
+    })();
+
+    /* ══ CASE À COCHER ══ */
+    function basculerSouvenir() {
+        const c = document.getElementById('case');
+        c.classList.toggle('coche');
+        c.textContent = c.classList.contains('coche') ? '✓' : '';
+    }
+
+    /* ══ COMPTES AUTORISÉS ══ */
+    const COMPTES = {
+        'admin@sidad.gov.gn': { motdepasse: 'admin123', nom: 'Yves Ninamou',  role: 'superadmin' },
+        'agent@sidad.gov.gn': { motdepasse: 'agent123', nom: 'Agent Kouyaté', role: 'agent'      },
+    };
+
+    /* ══ CONNEXION ══ */
+    function seConnecter(e) {
+        e.preventDefault();
+
+        const email  = document.getElementById('email').value.trim().toLowerCase();
+        const mdp    = document.getElementById('motdepasse').value;
+        const btn    = document.getElementById('btn');
+        const erreur = document.getElementById('erreur');
+
+        if (!email || !mdp) {
+            document.getElementById('txt-erreur').textContent = langue === 'fr'
+                ? 'Veuillez remplir tous les champs.'
+                : 'Please fill in all fields.';
+            erreur.classList.add('visible');
+            return;
+        }
+
+        erreur.classList.remove('visible');
+        btn.textContent = langue === 'fr' ? 'Vérification...' : 'Checking...';
+        btn.disabled = true;
+
+        setTimeout(function() {
+            const compte = COMPTES[email];
+            if (compte && compte.motdepasse === mdp) {
+                localStorage.setItem('sidad_session', JSON.stringify({
+                    email: email,
+                    nom:   compte.nom,
+                    role:  compte.role
+                }));
+                const prefixe = langue === 'fr' ? 'Bienvenue, ' : 'Welcome, ';
+                document.getElementById('succes-nom').textContent  = prefixe + compte.nom + ' !';
+                document.getElementById('succes-sous').textContent = TEXTES[langue]['succes-sous'];
+                document.getElementById('overlay').classList.add('visible');
+                setTimeout(function() {
+                    document.getElementById('barre').style.width = '100%';
+                }, 100);
+                setTimeout(function() {
+                    window.location.href = 'dashboard.html';
+                }, 2100);
+            } else {
+                document.getElementById('txt-erreur').textContent = TEXTES[langue]['txt-erreur'];
+                erreur.classList.add('visible');
+                btn.textContent = TEXTES[langue]['btn'];
+                btn.disabled = false;
+                const right = document.querySelector('.right');
+                right.style.transition = 'transform 0.08s';
+                right.style.transform = 'translateX(-8px)';
+                setTimeout(function() { right.style.transform = 'translateX(8px)'; }, 80);
+                setTimeout(function() { right.style.transform = 'translateX(-5px)'; }, 160);
+                setTimeout(function() { right.style.transform = 'translateX(0)'; right.style.transition = ''; }, 240);
+            }
+        }, 900);
+    }
+
+    /* ══ MOT DE PASSE OUBLIÉ ══ */
+    function motDePasseOublie() {
+        const emailSaisi = document.getElementById('email').value.trim();
+        const sujet = langue === 'fr' ? 'Réinitialisation mot de passe SIDAD' : 'SIDAD Password Reset';
+        const corps = langue === 'fr'
+            ? 'Bonjour,\n\nJe souhaite réinitialiser mon mot de passe.\n\nEmail : ' + (emailSaisi || '___') + '\n\nMerci.'
+            : 'Hello,\n\nI would like to reset my password.\n\nEmail: ' + (emailSaisi || '___') + '\n\nThank you.';
+        window.location.href = 'mailto:ninamoumagloire@gmail.com?subject=' + encodeURIComponent(sujet) + '&body=' + encodeURIComponent(corps);
+    }
+
+    /* ══ INIT LANGUE ══ */
+    (function() {
+        var lg = localStorage.getItem('sidad_langue');
+        if (lg && lg !== langue) changerLangue(lg);
+    })();
+
+</script>
+</body>
+</html>
