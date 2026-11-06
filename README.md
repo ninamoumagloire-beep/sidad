@@ -120,7 +120,13 @@ SIDAD was evaluated in three ways:
 
 ## 📸 Screenshots
 
-_Add screenshots of the login page, dashboard, analyser and PDF report here._
+| Login | Dashboard |
+|---|---|
+| ![Login page](docs/screenshots/login.png) | ![Dashboard](docs/screenshots/dashboard.png) |
+| **Document analysis** | **Analysis history** |
+| ![Document analysis](docs/screenshots/analyser.png) | ![Analysis history](docs/screenshots/historique.png) |
+
+_Personal file names in the history screenshot have been blurred for privacy._
 
 ## 👤 Author
 
